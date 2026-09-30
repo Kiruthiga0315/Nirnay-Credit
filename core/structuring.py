@@ -104,11 +104,11 @@ def structure(borrower: Borrower, target_dscr: float = 1.25) -> StructureResult:
     # Step 2: scale proportionally so sum = total_repayment
     raw_sum = sum(raw_ceiling)
     if raw_sum > 0:
-        scale_factor = total_repayment / raw_sum
+        scale_factor = min(1.0, total_repayment / raw_sum)
         matched_schedule = [float(math.floor(c * scale_factor)) for c in raw_ceiling]
     else:
         # Fallback: flat
-        matched_schedule = [float(math.floor(total_repayment / tenor))] * tenor
+        matched_schedule = [0.0] * tenor
 
     # Step 3: distribute rounding remainder to the month with the largest headroom
     remainder = total_repayment - sum(matched_schedule)
