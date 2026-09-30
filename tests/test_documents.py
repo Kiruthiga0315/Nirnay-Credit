@@ -1,6 +1,7 @@
 from core.documents import make_cam, make_letter
 from core.reference import MEENA
 
+
 def test_make_cam():
     doc = make_cam(MEENA)
     assert isinstance(doc, bytes)

@@ -69,7 +69,7 @@ def card() -> Any:
 
 def kpi_row(kpis: list[tuple[str, str]] | list[tuple[str, str, str | None]]) -> None:
     cols = st.columns(len(kpis))
-    for col, kpi_data in zip(cols, kpis):
+    for col, kpi_data in zip(cols, kpis, strict=True):
         with col:
             if len(kpi_data) == 3:
                 kpi(kpi_data[0], kpi_data[1], help_=kpi_data[2])  # type: ignore
@@ -98,6 +98,7 @@ def pd_gauge(pd: float, threshold: float = 0.5) -> None:
     ))
     fig.update_layout(height=250, margin=dict(l=20, r=20, t=30, b=20))
     st.plotly_chart(fig, use_container_width=True)
+    caption("probability of default calibrated against policy approval threshold.")
 
 
 def reason_list(reasons: list[dict[str, Any]]) -> None:
