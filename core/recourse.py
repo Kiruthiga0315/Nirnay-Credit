@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import pickle
 import warnings
+from functools import lru_cache
 from typing import Any
 
 import numpy as np
@@ -37,8 +38,6 @@ _MAX_ACTIONS = 4
 # ---------------------------------------------------------------------------
 # Internal: model loading — uses M1's challenger with proper categorical encoding
 # ---------------------------------------------------------------------------
-
-from functools import lru_cache
 
 @lru_cache(maxsize=1)
 def _load_scoring_model():

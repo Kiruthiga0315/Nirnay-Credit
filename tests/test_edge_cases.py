@@ -1,13 +1,14 @@
-import pytest
-import math
 import random
+
 import pandas as pd
+import pytest
+
+from core.features import by_name, load_spec
+from core.optimizer import optimize
+from core.paths import DATA
 from core.recourse import recourse
 from core.structuring import structure
-from core.optimizer import optimize
-from core.features import load_spec, by_name
-from core.paths import DATA
-from core.reference import TEST_BORROWER_IDS
+
 
 def get_50_random_borrowers():
     borrowers_path = DATA / "borrowers.parquet"
@@ -17,19 +18,19 @@ def get_50_random_borrowers():
     df = pd.read_parquet(borrowers_path)
     return df.sample(n=min(50, len(df)), random_state=42).to_dict(orient="records")
 
+
 def get_extreme_cases():
     # 5 extreme cases: zero balance, huge ticket, all levers at bounds, missing bureau, extreme seasonality
     base = {"id": "EXT-001"}
-    
+
     # 1. Zero balance / missing bureau equivalent
     b1 = dict(base, id="EXT-001", bureau_score=None, requested_amount=100_000, sector="services")
-    
+
     # 2. Huge ticket
     b2 = dict(base, id="EXT-002", requested_amount=50_000_000, sector="manufacturing", upi_inflow_3m_avg=10_000)
-    
+
     # 3. All levers at bounds (assuming receivable_days etc)
     b3 = dict(base, id="EXT-003", requested_amount=500_000)
-    spec = by_name()
     for f in load_spec()["features"]:
         if f.get("mutability") == "verifiable" and "allowed_range" in f:
             b3[f["name"]] = f["allowed_range"][0] # set to lower bound
