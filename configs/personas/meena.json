@@ -19,8 +19,12 @@
   "cheque_bounces_6m": 1,
   "utility_delay_days": 2,
   "invoice_digitisation_share": 0.35,
+  "inventory_days": 45,
+  "payable_days": 30,
+  "cash_conversion_days": 93,
   "supplier_concentration": 0.42,
   "customer_concentration": 0.55,
+  "revenue_growth_3m": 0.05,
   "requested_amount": 800000,
   "_note": "FIXTURE. Single source of truth for the demo persona. M1's generator must inject this exact row as MSME-00001 (thin file = bureau_score null; strong seasonal cash flow)."
 }
