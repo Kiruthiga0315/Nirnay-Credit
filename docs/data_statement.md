@@ -66,6 +66,22 @@ Approve if score > 35th-percentile cutoff, **plus 5-10% manual overrides/excepti
 
 Outcomes are observed only for approved firms.
 
+## Reject inference (Phase 2)
+
+**Method: augmentation** (not parcelling). Rationale:
+- Augmentation is the standard two-step approach: train approved-only model → impute PD for rejected firms → retrain on combined data with pseudo-labels.
+- We prefer augmentation over parcelling because it preserves the full probability surface without arbitrary bin boundaries.
+- The stochastic legacy policy (noise + 5-10% overrides) provides genuine overlap between approved and rejected populations, making augmentation identifiable.
+- Literature consistently shows reject-inference gains are typically modest. We measure and report honestly.
+
+**Three models trained** on the same features (LightGBM with monotone constraints):
+1. **Approved-only** — trained only on firms where outcomes are observed
+2. **Reject-inferred** — augmented with pseudo-labels for rejected firms
+3. **Oracle** — trained with true outcomes for ALL firms; used ONLY for evaluation/reference, NEVER in any production score path
+
+**Scoreboard** evaluates all three plus the legacy policy on the OOT test months, using oracle outcomes for ALL firms (including rejected ones whose outcomes are never observable in production).
+
+
 ## Sensitivity grid (3×3 = 9 configurations)
 
 | kappa \ bias | weak | medium | strong |
