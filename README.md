@@ -27,7 +27,15 @@ See [CONTRIBUTING.md](CONTRIBUTING.md), [docs/OWNERSHIP.md](docs/OWNERSHIP.md), 
 AI agents must follow [AGENTS.md](AGENTS.md).
 
 ## Status (fill from artifacts/metrics.json only)
-TODO(M4): architecture diagram, data statement link, results table, limitations, live URL, demo video.
+### Architecture
+```mermaid
+graph TD
+    UI[app/ Streamlit UI] --> SDK[core/ Python SDK]
+    SDK --> Models[models/ champion.pkl, challenger.pkl]
+    SDK --> Data[data/ borrowers, panel]
+    SDK --> Artifacts[artifacts/ metrics.json]
+```
+TODO(M4): data statement link, results table, limitations, live URL, demo video.
 
 ## Honest limits
 Results come from synthetic data under documented assumptions and are method validation, not India-level forecasts.
