@@ -1,7 +1,8 @@
 import json
-import pytest
-from core.paths import ARTIFACTS
+
 from core.models import build_artifacts
+from core.paths import ARTIFACTS
+
 
 def test_model_cockpit_artifacts():
     cockpit_path = ARTIFACTS / "model_cockpit.json"

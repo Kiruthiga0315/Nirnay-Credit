@@ -1,9 +1,11 @@
 import json
-import pandas as pd
 from unittest.mock import patch
-from pathlib import Path
+
+import pandas as pd
+
 from core.external import build_artifacts
 from core.paths import ARTIFACTS
+
 
 def test_external_missing_file(tmp_path):
     # It should skip gracefully

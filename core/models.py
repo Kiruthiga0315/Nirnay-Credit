@@ -28,10 +28,10 @@ import numpy as np
 import pandas as pd
 import yaml
 from scipy.stats import ks_2samp
+from sklearn.calibration import calibration_curve
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import brier_score_loss, roc_auc_score, roc_curve
-from sklearn.calibration import calibration_curve
 from sklearn.model_selection import train_test_split
 
 from core.contracts import Borrower, ScoreResult

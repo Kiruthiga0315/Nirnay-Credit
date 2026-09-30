@@ -49,9 +49,6 @@ def build_artifacts(smoke: bool = False) -> None:
 
     # Champion: WoE + Logistic Regression
     woe = WoEBinning(bins=5)
-    # mock spec for WoE
-    for col in X.columns:
-        woe.bin_edges[col] = "continuous" # let it determine
     woe.fit(X_train, y_train)
     X_train_woe = woe.transform(X_train)
     X_test_woe = woe.transform(X_test)
