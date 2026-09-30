@@ -56,11 +56,14 @@ def _make_tiny_model(seed: int = 42):
     available = [c for c in feature_cols if c in bdf.columns]
     X = bdf[available].copy()
 
-    # Encode categoricals as integer codes
-    for col in X.select_dtypes(include="object").columns:
-        X[col] = pd.Categorical(X[col]).codes
-
-    X = X.fillna(-1)
+    # Encode categoricals as standard pandas.Categorical
+    spec = by_name()
+    for col in available:
+        if spec.get(col, {}).get("type") == "cat":
+            cats = spec[col].get("categories", [])
+            X[col] = pd.Categorical(X[col], categories=cats)
+        else:
+            X[col] = pd.to_numeric(X[col], errors="coerce").fillna(-1)
 
     # Synthetic target: thin-file (bureau_score NaN) → slightly higher default prob
     rng = np.random.default_rng(seed)
@@ -106,16 +109,18 @@ def _load_challenger():
 
 def _prepare_row(b: dict, feature_names: list[str]) -> pd.DataFrame:
     """Convert a borrower dict to a one-row DataFrame matching feature_names."""
-    row: dict[str, Any] = {}
-    for name in feature_names:
-        val = b.get(name, np.nan)
-        if isinstance(val, str):
-            # Encode as a simple hash-based integer for SHAP
-            val = abs(hash(val)) % 1000
-        elif val is None:
-            val = np.nan
-        row[name] = val
-    return pd.DataFrame([row])
+    spec = by_name()
+    vals = {name: b.get(name, np.nan) for name in feature_names}
+    df = pd.DataFrame([vals])
+
+    for f in feature_names:
+        if spec.get(f, {}).get("type") == "cat":
+            cats = spec[f].get("categories", [])
+            df[f] = pd.Categorical(df[f], categories=cats)
+        else:
+            df[f] = pd.to_numeric(df[f], errors="coerce")
+
+    return df
 
 
 # ---------------------------------------------------------------------------
