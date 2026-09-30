@@ -1,61 +1,61 @@
 # Replace the handles, or run: python scripts/set_owners.py M1=@a M2=@b M3=@c M4=@d
 # M1 Data & Modelling
-/core/generator.py            @M1_HANDLE
-/core/legacy_policy.py        @M1_HANDLE
-/core/models.py               @M1_HANDLE
-/core/external.py             @M1_HANDLE
-/configs/generator/           @M1_HANDLE
-/configs/personas/            @M1_HANDLE
-/app/pages/7_Model_Cockpit.py @M1_HANDLE
-/docs/data_statement.md       @M1_HANDLE
-/docs/model_card.md           @M1_HANDLE
-/docs/claims/m1.md            @M1_HANDLE
-/docs/known_issues/m1.md      @M1_HANDLE
+/core/generator.py            @Kiruthiga0315
+/core/legacy_policy.py        @Kiruthiga0315
+/core/models.py               @Kiruthiga0315
+/core/external.py             @Kiruthiga0315
+/configs/generator/           @Kiruthiga0315
+/configs/personas/            @Kiruthiga0315
+/app/pages/7_Model_Cockpit.py @Kiruthiga0315
+/docs/data_statement.md       @Kiruthiga0315
+/docs/model_card.md           @Kiruthiga0315
+/docs/claims/m1.md            @Kiruthiga0315
+/docs/known_issues/m1.md      @Kiruthiga0315
 # M2 Decision Science
-/core/features.py             @M2_HANDLE
-/core/explain.py              @M2_HANDLE
-/core/recourse.py             @M2_HANDLE
-/core/forecast.py             @M2_HANDLE
-/core/structuring.py          @M2_HANDLE
-/core/fairness.py             @M2_HANDLE
-/core/optimizer.py            @M2_HANDLE
-/configs/feature_spec.json    @M2_HANDLE
-/app/pages/4_Fairness_Studio.py @M2_HANDLE
-/docs/claims/m2.md            @M2_HANDLE
-/docs/known_issues/m2.md      @M2_HANDLE
+/core/features.py             @jagansara007-bit
+/core/explain.py              @jagansara007-bit
+/core/recourse.py             @jagansara007-bit
+/core/forecast.py             @jagansara007-bit
+/core/structuring.py          @jagansara007-bit
+/core/fairness.py             @jagansara007-bit
+/core/optimizer.py            @jagansara007-bit
+/configs/feature_spec.json    @jagansara007-bit
+/app/pages/4_Fairness_Studio.py @jagansara007-bit
+/docs/claims/m2.md            @jagansara007-bit
+/docs/known_issues/m2.md      @jagansara007-bit
 # M3 Risk Systems & Platform
-/core/stress.py               @M3_HANDLE
-/core/early_warning.py        @M3_HANDLE
-/core/trust.py                @M3_HANDLE
-/core/governance.py           @M3_HANDLE
-/configs/scenarios.yaml       @M3_HANDLE
-/run_all.py                   @M3_HANDLE
-/Makefile                     @M3_HANDLE
-/requirements*.txt            @M3_HANDLE
-/.github/                     @M3_HANDLE
-/scripts/                     @M3_HANDLE
-/app/pages/5_Stress_Contagion.py @M3_HANDLE
-/app/pages/6_Early_Warning.py @M3_HANDLE
-/app/pages/8_Governance.py    @M3_HANDLE
-/docs/claims/m3.md            @M3_HANDLE
-/docs/known_issues/m3.md      @M3_HANDLE
-/demo_snapshot/               @M3_HANDLE
+/core/stress.py               @haseenafathima007-lang
+/core/early_warning.py        @haseenafathima007-lang
+/core/trust.py                @haseenafathima007-lang
+/core/governance.py           @haseenafathima007-lang
+/configs/scenarios.yaml       @haseenafathima007-lang
+/run_all.py                   @haseenafathima007-lang
+/Makefile                     @haseenafathima007-lang
+/requirements*.txt            @haseenafathima007-lang
+/.github/                     @haseenafathima007-lang
+/scripts/                     @haseenafathima007-lang
+/app/pages/5_Stress_Contagion.py @haseenafathima007-lang
+/app/pages/6_Early_Warning.py @haseenafathima007-lang
+/app/pages/8_Governance.py    @haseenafathima007-lang
+/docs/claims/m3.md            @haseenafathima007-lang
+/docs/known_issues/m3.md      @haseenafathima007-lang
+/demo_snapshot/               @haseenafathima007-lang
 # M4 Product, UI & Story
-/core/documents.py            @M4_HANDLE
-/app/Home.py                  @M4_HANDLE
-/app/components/              @M4_HANDLE
-/app/pages/1_Portfolio.py     @M4_HANDLE
-/app/pages/2_Borrower_Decision.py @M4_HANDLE
-/app/pages/3_Borrower_Portal.py @M4_HANDLE
-/README.md                    @M4_HANDLE
-/docs/claims/README.md        @M4_HANDLE
-/docs/claims/m4.md            @M4_HANDLE
-/docs/known_issues/m4.md      @M4_HANDLE
-/docs/QA_PREP.md              @M4_HANDLE
+/core/documents.py            @keerthanaaruvi2008-source
+/app/Home.py                  @keerthanaaruvi2008-source
+/app/components/              @keerthanaaruvi2008-source
+/app/pages/1_Portfolio.py     @keerthanaaruvi2008-source
+/app/pages/2_Borrower_Decision.py @keerthanaaruvi2008-source
+/app/pages/3_Borrower_Portal.py @keerthanaaruvi2008-source
+/README.md                    @keerthanaaruvi2008-source
+/docs/claims/README.md        @keerthanaaruvi2008-source
+/docs/claims/m4.md            @keerthanaaruvi2008-source
+/docs/known_issues/m4.md      @keerthanaaruvi2008-source
+/docs/QA_PREP.md              @keerthanaaruvi2008-source
 # FROZEN after Gate 1 (H3): everyone must approve
-/core/contracts.py            @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
-/core/reference.py            @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
-/core/paths.py                @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
-/core/__init__.py             @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
-/docs/CONTRACTS.md            @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
-/docs/ARTIFACTS.md            @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
+/core/contracts.py            @Kiruthiga0315 @jagansara007-bit @haseenafathima007-lang @keerthanaaruvi2008-source
+/core/reference.py            @Kiruthiga0315 @jagansara007-bit @haseenafathima007-lang @keerthanaaruvi2008-source
+/core/paths.py                @Kiruthiga0315 @jagansara007-bit @haseenafathima007-lang @keerthanaaruvi2008-source
+/core/__init__.py             @Kiruthiga0315 @jagansara007-bit @haseenafathima007-lang @keerthanaaruvi2008-source
+/docs/CONTRACTS.md            @Kiruthiga0315 @jagansara007-bit @haseenafathima007-lang @keerthanaaruvi2008-source
+/docs/ARTIFACTS.md            @Kiruthiga0315 @jagansara007-bit @haseenafathima007-lang @keerthanaaruvi2008-source
