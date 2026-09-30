@@ -15,7 +15,18 @@ This model is intended to be used as a decision aid for underwriting MSME loans.
 - **Calibration**: Isotonic Regression fitted on a held-out slice of the training data ensures predicted probabilities are realistic default rates.
 
 ## Metrics
-- **Challenger AUC OOT**: 0.551
-- **Challenger Gini OOT**: 0.101
-- **Challenger Expected Calibration Error (ECE)**: 0.057
-- **Challenger Population Stability Index (PSI)**: 0.021
+- **Champion AUC OOT**: {{ models.auc_champion_oot }}
+- **Challenger AUC OOT**: {{ models.auc_challenger_oot }}
+- **Challenger Gini OOT**: {{ models.gini_challenger_oot }}
+- **Challenger Expected Calibration Error (ECE)**: {{ models.ece_challenger }}
+- **Challenger Population Stability Index (PSI)**: {{ models.psi_challenger }}
+
+### External Validity
+- **External AUC Challenger**: {{ external.auc_challenger }}
+- **External KS Challenger**: {{ external.ks_challenger }}
+- **External ECE Challenger**: {{ external.ece_challenger }}
+
+## Limits
+1. Results are method validation, not India-level claims. Every improvement is partially a product of the simulation design.
+2. Default mechanism is stylised. Real MSME defaults involve complex interactions.
+3. Calibration targets are approximate. Actual MSME default rates vary widely.
