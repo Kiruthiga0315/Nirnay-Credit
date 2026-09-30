@@ -213,7 +213,7 @@ def train_hazard_model(
         n_estimators=150,
         learning_rate=0.03,
         num_leaves=12,
-        scale_pos_weight=5.0,
+        monotone_constraints=[-1, 0, 1, 1, -1, -1, 1, 1, 1, 1, -1, 1, -1, 0, -1, 1, 1, 1, 1],
         random_state=42,
         verbose=-1,
     )
@@ -257,10 +257,31 @@ def train_hazard_model(
     median_lead_time = float(np.median(lead_times)) if lead_times else 0.0
     mean_lead_time = float(np.mean(lead_times)) if lead_times else 0.0
 
+    lead_time_by_segment = {}
+    if (DATA / "borrowers.parquet").exists():
+        borrowers = pd.read_parquet(DATA / "borrowers.parquet")
+        b_sectors = dict(zip(borrowers["id"], borrowers["sector"], strict=False))
+        sector_lead_times = {}
+        for _, def_row in oot_defaulters.iterrows():
+            b_id = def_row["id"]
+            d_month = int(def_row["default_month"])
+            b_history = test_data[(test_data["id"] == b_id) & (test_data["month"] <= d_month)]
+            warnings = b_history[b_history["pred_hazard"] >= q90_cutoff]
+            if len(warnings) > 0:
+                lt = float(max(0, d_month - int(warnings["month"].min())))
+            else:
+                lt = 0.0
+            sec = str(b_sectors.get(b_id, "unknown"))
+            sector_lead_times.setdefault(sec, []).append(lt)
+        
+        for sec, lts in sector_lead_times.items():
+            lead_time_by_segment[sec] = float(np.median(lts)) if lts else 0.0
+
     metrics = {
         "top_decile_lift": lift,
         "median_lead_time_months": round(median_lead_time, 2),
         "mean_lead_time_months": round(mean_lead_time, 2),
+        "lead_time_by_segment": lead_time_by_segment,
         "oot_defaulters_count": len(oot_defaulters),
         "oot_eval_months": [25, 36],
         "top_decile_cutoff": round(q90_cutoff, 4),
@@ -365,6 +386,42 @@ def get_borrower_hazard_trajectory(borrower_id: str) -> list[dict[str, Any]]:
         {"month": int(row["month"]), "hazard": round(float(row["hazard"]), 4)}
         for _, row in b_df.iterrows()
     ]
+
+
+def estimate_loss_avoided(borrower_id: str) -> dict[str, Any]:
+    """Compute estimated loss avoided if suggested restructure is applied.
+
+    Uses core.structuring.structure to get default_flat and default_matched.
+    Loss avoided = (default_flat - default_matched) * requested_amount * LGD.
+    Assuming LGD (Loss Given Default) = 50% for illustrative purposes.
+    """
+    from core.reference import MEENA, resolve
+    from core.structuring import structure
+
+    b = resolve(borrower_id)
+    bf = dict(MEENA)
+    bf.update({k: v for k, v in b.items() if v is not None})
+    amount = float(bf.get("requested_amount", 800_000))
+
+    try:
+        sr = structure(borrower_id)
+        df_diff = max(0.0, sr["default_flat"] - sr["default_matched"])
+        df_flat = float(sr["default_flat"])
+        df_matched = float(sr["default_matched"])
+    except Exception:
+        df_diff = 0.0
+        df_flat = 0.0
+        df_matched = 0.0
+
+    lgd = 0.50
+    loss_avoided = df_diff * amount * lgd
+
+    return {
+        "borrower_id": borrower_id,
+        "loss_avoided": round(loss_avoided, 2),
+        "default_flat": df_flat,
+        "default_matched": df_matched,
+    }
 
 
 def build_artifacts(smoke: bool = False) -> None:
