@@ -6,7 +6,8 @@ Design (Blueprint §5.5, L6):
   - LightGBM quantile regressors (alpha 0.1, 0.5, 0.9) for monthly net cash available.
   - Time-based train/test split: train on months 1-24, test on months 25-36.
   - Split-conformal calibration applied to P10 / P90 so nominal coverage is defensible.
-  - Backtest reports raw and conformal interval coverage (target ≥ 80% for 80% PI, etc.).
+  - Backtest reports raw and conformal interval coverage (target ≥ 80% for 80% PI, etc.)
+    overall and by sector.
   - Uses data/panel.parquet produced by M1's generator; generates panel if absent.
 """
 from __future__ import annotations
@@ -187,7 +188,8 @@ def build_artifacts(smoke: bool = False) -> None:
     """Train quantile LightGBM models; write forecast_bands.parquet and metrics.
 
     Time split: train months 1-24, calib months 21-24, test months 25-36.
-    Also applies split-conformal calibration and reports interval coverage.
+    Also applies split-conformal calibration and reports interval coverage
+    overall and by sector.
     """
     import pickle
 
@@ -261,6 +263,28 @@ def build_artifacts(smoke: bool = False) -> None:
     p90_test = p90_test_raw + conf_delta
     conformal_coverage_80 = _coverage(y_test, p10_test, p90_test)
 
+    # --- Coverage by sector ---
+    coverage_by_sector: dict[str, float] = {}
+    if "sector" in test.columns:
+        test_reset = test.reset_index(drop=True)
+        for sector_val in sorted(test_reset["sector"].dropna().unique()):
+            mask = test_reset["sector"].values == sector_val
+            if mask.sum() == 0:
+                continue
+            cov = _coverage(y_test[mask], p10_test[mask], p90_test[mask])
+            coverage_by_sector[str(sector_val)] = round(cov, 4)
+
+    # --- Coverage by test month ---
+    coverage_by_month: dict[str, float] = {}
+    if "month" in test.columns:
+        test_reset = test.reset_index(drop=True)
+        for m_val in sorted(test_reset["month"].unique()):
+            mask = test_reset["month"].values == m_val
+            if mask.sum() == 0:
+                continue
+            cov = _coverage(y_test[mask], p10_test[mask], p90_test[mask])
+            coverage_by_month[str(int(m_val))] = round(cov, 4)
+
     # Write forecast_bands.parquet
     test_out = test[["id", "month"]].copy().reset_index(drop=True)
     test_out["p10"] = np.round(p10_test, 2)
@@ -294,6 +318,9 @@ def build_artifacts(smoke: bool = False) -> None:
         "raw_interval_coverage_80pct": round(raw_coverage_80, 4),
         "conformal_interval_coverage_80pct": round(conformal_coverage_80, 4),
         "conformal_delta_inr": round(float(conf_delta), 2),
+        "coverage_p10_p90": round(conformal_coverage_80, 4),
+        "coverage_by_sector": coverage_by_sector,
+        "coverage_by_month": coverage_by_month,
         "model_version": "lgbm-quantile-v1",
         "_note": "Under documented assumptions: synthetic panel data; coverage is method validation.",
     })
@@ -303,3 +330,5 @@ def build_artifacts(smoke: bool = False) -> None:
         f"Raw 80% coverage: {raw_coverage_80:.1%}, "
         f"Conformal 80% coverage: {conformal_coverage_80:.1%}"
     )
+    if coverage_by_sector:
+        print(f"[forecast] Coverage by sector: {coverage_by_sector}")
