@@ -49,3 +49,15 @@ def test_generator_reproducibility_and_constraints():
             continue
         if col not in nullable_features:
             assert not borrowers[col].isna().any(), f"Column {col} has NaN but is not nullable"
+
+    # Bureau missingness tests
+    total_thin = borrowers["bureau_score"].isna().mean()
+    assert 0.30 <= total_thin <= 0.40, f"Total thin file share {total_thin:.3f} outside [0.30, 0.40]"
+
+    female_thin = borrowers[borrowers["owner_gender"] == "female"]["bureau_score"].isna().mean()
+    male_thin = borrowers[borrowers["owner_gender"] == "male"]["bureau_score"].isna().mean()
+    assert female_thin > male_thin, f"Female missing {female_thin:.3f} not > Male missing {male_thin:.3f}"
+
+    rural_thin = borrowers[borrowers["location_class"] == "rural"]["bureau_score"].isna().mean()
+    metro_thin = borrowers[borrowers["location_class"] == "metro"]["bureau_score"].isna().mean()
+    assert rural_thin > metro_thin, f"Rural missing {rural_thin:.3f} not > Metro missing {metro_thin:.3f}"

@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from core.paths import CONFIGS, DATA
+from core.paths import CONFIGS, DATA, write_metrics
 
 
 def load_config(kappa: str = "medium", bias_strength: str = "medium") -> dict[str, Any]:
@@ -33,8 +33,8 @@ def load_config(kappa: str = "medium", bias_strength: str = "medium") -> dict[st
     }
 
 
-def build_artifacts(smoke: bool = False) -> None:
-    config = load_config()
+def build_artifacts(smoke: bool = False, kappa: str = "medium", bias_strength: str = "medium") -> None:
+    config = load_config(kappa=kappa, bias_strength=bias_strength)
     n_firms = config["n_firms_smoke"] if smoke else config["n_firms"]
     np.random.seed(config["seed"])
 
@@ -45,9 +45,12 @@ def build_artifacts(smoke: bool = False) -> None:
     df = pd.DataFrame()
     df["id"] = [f"MSME-{i:05d}" for i in range(2, n_gen + 2)]
 
+    # Generate all non-bureau features first
     for feat in spec["features"]:
         name = feat["name"]
         dtype = feat["type"]
+        if name == "bureau_score":
+            continue
         if dtype == "cat":
             cats = feat["categories"]
             df[name] = np.random.choice(cats, size=n_gen)
@@ -60,44 +63,52 @@ def build_artifacts(smoke: bool = False) -> None:
             low, high = feat.get("allowed_range", [0, 1])
             if high is None:
                 high = 10000000
-            if name == "bureau_score" and feat.get("nullable"):
-                # introduce nulls based on bias_strength (proxy logic)
-                mask = np.random.rand(n_gen) < 0.35
-                vals = np.random.uniform(low, high, size=n_gen)
-                vals[mask] = np.nan
-                df[name] = vals
-            else:
-                df[name] = np.random.uniform(low, high, size=n_gen)
+            df[name] = np.random.uniform(low, high, size=n_gen)
+
+    # Generate bureau_score with conditioned thin-file missingness
+    b_strength = config["bias_strength"]
+    base_thin = config["legacy_policy"].get("thin_file_share", 0.35)
+
+    missing_prob = np.full(n_gen, base_thin)
+    missing_prob += np.where(df["owner_gender"] == "female", 0.06 * b_strength, -0.04 * b_strength)
+    missing_prob += np.where(
+        df["location_class"] == "rural",
+        0.06 * b_strength,
+        np.where(df["location_class"] == "metro", -0.06 * b_strength, 0.0),
+    )
+    missing_prob = np.clip(missing_prob, 0.05, 0.95)
+
+    is_missing = np.random.rand(n_gen) < missing_prob
+    bureau_vals = np.random.uniform(300.0, 900.0, size=n_gen)
+    bureau_vals[is_missing] = np.nan
+    df["bureau_score"] = bureau_vals
 
     with open(CONFIGS / "personas" / "meena.json", encoding="utf-8") as f:
         meena = json.load(f)
 
     meena.pop("_note", None)
-    
+
     # Fill remaining required columns for meena if they don't exist in json but exist in df
     for col in df.columns:
         if col not in meena and col != "id":
-            # Just take the first row of generated data as a filler if not specified for meena
-            # Wait, meena shouldn't have missing columns that are strictly required by feature_spec.
-            # But just in case:
-            if df[col].dtype == 'object':
-                meena[col] = df[col].iloc[0]
-            else:
-                meena[col] = df[col].iloc[0]
+            meena[col] = df[col].iloc[0]
 
     meena_df = pd.DataFrame([meena])
-    
+
     # Align columns
-    # We should make sure df has same columns as meena_df
     for col in meena_df.columns:
         if col not in df.columns:
             if isinstance(meena_df[col].iloc[0], str):
                 df[col] = ""
             else:
                 df[col] = np.nan
-                
+
     # Sort columns to match
     df = df[meena_df.columns]
+
+    for col in df.columns:
+        if col in meena_df.columns:
+            meena_df[col] = meena_df[col].astype(df[col].dtype)
 
     borrowers = pd.concat([meena_df, df], ignore_index=True)
 
@@ -133,11 +144,11 @@ def build_artifacts(smoke: bool = False) -> None:
     DATA.mkdir(exist_ok=True, parents=True)
     borrowers.to_parquet(DATA / "borrowers.parquet", index=False)
     panel_df.to_parquet(DATA / "panel.parquet", index=False)
-    
+
     # oracle data
     oracle_df = pd.DataFrame({
         "id": firm_ids,
-        "capacity_latent": capacity
+        "capacity_latent": capacity,
     })
     oracle_df.to_parquet(DATA / "oracle.parquet", index=False)
 
@@ -159,9 +170,31 @@ def build_artifacts(smoke: bool = False) -> None:
     with open(DATA / "generator_meta.json", "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2)
 
+    # Write generator metrics
+    total_thin = float(borrowers["bureau_score"].isna().mean())
+    female_thin = float(borrowers[borrowers["owner_gender"] == "female"]["bureau_score"].isna().mean())
+    male_thin = float(borrowers[borrowers["owner_gender"] == "male"]["bureau_score"].isna().mean())
+    rural_thin = float(borrowers[borrowers["location_class"] == "rural"]["bureau_score"].isna().mean())
+    urban_thin = float(borrowers[borrowers["location_class"] == "urban"]["bureau_score"].isna().mean())
+    metro_thin = float(borrowers[borrowers["location_class"] == "metro"]["bureau_score"].isna().mean())
+
+    write_metrics("generator", {
+        "thin_file_share_total": total_thin,
+        "thin_file_share_female": female_thin,
+        "thin_file_share_male": male_thin,
+        "thin_file_share_rural": rural_thin,
+        "thin_file_share_urban": urban_thin,
+        "thin_file_share_metro": metro_thin,
+    })
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--config", type=str, default="kappa=medium,bias_strength=medium")
     args = parser.parse_args()
-    build_artifacts(smoke=args.smoke)
+
+    cfg_dict = dict(item.split("=") for item in args.config.split(",")) if args.config else {}
+    k_val = cfg_dict.get("kappa", "medium")
+    b_val = cfg_dict.get("bias_strength", "medium")
+    build_artifacts(smoke=args.smoke, kappa=k_val, bias_strength=b_val)
