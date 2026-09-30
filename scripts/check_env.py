@@ -14,7 +14,11 @@ def main():
             version = getattr(mod, "__version__", "unknown")
             print(f"OK   {pkg:15s} {version}")
         except Exception as e:
-            print(f"FAIL {pkg:15s} not found or failed to load: {type(e).__name__} - {e}")
+            msg = str(e)
+            if pkg == "lightgbm" and "libomp" in msg and sys.platform == "darwin":
+                print(f"FAIL {pkg:15s} failed to load: Missing libomp on macOS. Run 'brew install libomp'.")
+            else:
+                print(f"FAIL {pkg:15s} not found or failed to load: {type(e).__name__} - {e}")
             failures += 1
             
     if failures > 0:
