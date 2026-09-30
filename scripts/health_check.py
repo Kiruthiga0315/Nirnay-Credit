@@ -58,12 +58,13 @@ def main() -> int:
 
     # ── 1. Pull ──────────────────────────────────────────────────────
     pull_status = "skipped"
-    if args.pull:
-        rc, _ = run(["git", "pull", "--ff-only", "origin", "main"])
-        pull_status = "OK" if rc == 0 else "FAIL"
-
     branch = git_branch()
     sha = git_sha()
+
+    if args.pull:
+        target = branch if branch not in {"HEAD", "unknown"} else "main"
+        rc, _ = run(["git", "pull", "--ff-only", "origin", target])
+        pull_status = "OK" if rc == 0 else "FAIL"
 
     # ── 2. Smoke run ────────────────────────────────────────────────
     python = sys.executable
@@ -83,7 +84,7 @@ def main() -> int:
     test_status = "skipped"
     if not args.skip_tests:
         test_rc, test_out = run(
-            [python, "-m", "pytest", "--tb=no", "-q", "--timeout=120"],
+            [python, "-m", "pytest", "--tb=no", "-q"],
             timeout=600,
         )
         test_status = "OK" if test_rc == 0 else "FAIL"

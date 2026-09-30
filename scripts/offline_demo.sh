@@ -75,11 +75,16 @@ fi
 SNAP_ARTIFACTS="${REPO_ROOT}/demo_snapshot/artifacts"
 echo "[4] Checking demo_snapshot/artifacts ..."
 if [[ ! -d "${SNAP_ARTIFACTS}" ]]; then
-  echo "ERROR: ${SNAP_ARTIFACTS} not found." >&2
-  echo "       Run 'make snapshot' first (requires internet + full build)." >&2
-  exit 1
+  if [[ "${DRY_RUN}" == "1" ]]; then
+    echo "    [DRY-RUN] demo_snapshot/artifacts not found (would be created via 'make snapshot')."
+  else
+    echo "ERROR: ${SNAP_ARTIFACTS} not found." >&2
+    echo "       Run 'make snapshot' first (requires internet + full build)." >&2
+    exit 1
+  fi
+else
+  echo "    Found $(find "${SNAP_ARTIFACTS}" -type f | wc -l | tr -d ' ') artifact file(s)."
 fi
-echo "    Found $(find "${SNAP_ARTIFACTS}" -type f | wc -l | tr -d ' ') artifact file(s)."
 
 # ── 5. Launch Streamlit from snapshot ───────────────────────────────
 echo "[5] Launching app (reads from demo_snapshot/) ..."

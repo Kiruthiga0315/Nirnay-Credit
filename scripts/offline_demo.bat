@@ -78,11 +78,16 @@ if exist "%LOCKFILE%" (
 set "SNAP_ARTIFACTS=%REPO_ROOT%\demo_snapshot\artifacts"
 echo [4] Checking demo_snapshot\artifacts ...
 if not exist "%SNAP_ARTIFACTS%" (
-    echo ERROR: %SNAP_ARTIFACTS% not found. >&2
-    echo        Run "make snapshot" first ^(requires internet + full build^). >&2
-    exit /b 1
+    if "%DRY_RUN%"=="1" (
+        echo     [DRY-RUN] demo_snapshot\artifacts not found ^(would be created via 'make snapshot'^).
+    ) else (
+        echo ERROR: %SNAP_ARTIFACTS% not found. >&2
+        echo        Run "make snapshot" first ^(requires internet + full build^). >&2
+        exit /b 1
+    )
+) else (
+    echo     Snapshot directory found.
 )
-echo     Snapshot directory found.
 
 :: ── 5. Launch Streamlit from snapshot ───────────────────────────────
 echo [5] Launching app ^(reads from demo_snapshot/^) ...
