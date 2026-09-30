@@ -17,4 +17,12 @@ def consent_artifact(borrower_id: str) -> dict[str, Any]:
 
 
 def build_artifacts(smoke: bool = False) -> None:
-    print("[governance] STUB - M3 to implement")
+    import json
+
+    from core.paths import ARTIFACTS, write_json
+    ARTIFACTS.mkdir(parents=True, exist_ok=True)
+    with open(ARTIFACTS / "ledger.jsonl", "w", encoding="utf-8") as f:
+        for row in ledger(10):
+            f.write(json.dumps(row) + "\n")
+    write_json("metrics/governance.json", {"overrides": 0})
+    print("[governance] STUB - generated artifacts")

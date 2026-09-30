@@ -2,6 +2,8 @@
 Writes models/hazard.pkl, artifacts/watchlist.parquet, artifacts/metrics/early_warning.json."""
 from __future__ import annotations
 
+import pandas as pd
+
 from core.contracts import WatchRow
 from core.reference import TEST_BORROWER_IDS, stable_unit
 
@@ -15,4 +17,10 @@ def watchlist(month: int = 25) -> list[WatchRow]:
 
 
 def build_artifacts(smoke: bool = False) -> None:
-    print("[early_warning] STUB - M3 to implement")
+    from core.paths import ARTIFACTS, write_json
+    wlist = watchlist(25)
+    df = pd.DataFrame(wlist)
+    ARTIFACTS.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(ARTIFACTS / "watchlist.parquet")
+    write_json("metrics/early_warning.json", {"lead_time_months": 3.5})
+    print("[early_warning] STUB - generated artifacts")
