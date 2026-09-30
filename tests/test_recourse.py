@@ -6,6 +6,7 @@ Contract:
 - Improving a lever in the right direction never raises PD (monotone direction check).
 - Max 4 actions returned.
 - valid_until_model is set.
+- recourse_equity returns by-group median costs.
 Reference borrower: Meena (MSME-00001).
 """
 from __future__ import annotations
@@ -15,7 +16,7 @@ import pytest
 from core.contracts import REFERENCE_BORROWER_ID
 from core.features import by_name
 from core.models import APPROVAL_PD_THRESHOLD, score
-from core.recourse import recourse
+from core.recourse import _load_scoring_model, _score_row, recourse
 
 MEENA_ID = REFERENCE_BORROWER_ID
 
@@ -133,6 +134,48 @@ def test_recourse_monotone_direction():
             )
 
 
+def test_recourse_monotone_pd_on_grid():
+    """Improving any single lever never raises PD (grid test on Meena).
+
+    For each verifiable lever, take 3 steps in the improving direction and
+    verify PD does not increase at any step.
+    """
+    from core.features import lever_config, levers, recompute_derived
+    from core.reference import MEENA
+
+    model, feature_names, calibrator = _load_scoring_model()
+    bf = dict(MEENA)
+    base_pd = _score_row(model, feature_names, bf, calibrator)
+
+    for ln in levers():
+        cfg = lever_config(ln)
+        direction = cfg.get("monotone_pd", 0)
+        step = float(cfg.get("step", 1.0))
+        lo, hi = cfg.get("allowed_range", [None, None])
+        current_val = float(bf.get(ln, 0.0))
+
+        prev_pd = base_pd
+        val = current_val
+
+        for _ in range(3):
+            if direction >= 0:
+                val -= step
+                if lo is not None and val < lo:
+                    break
+            else:
+                val += step
+                if hi is not None and val > hi:
+                    break
+
+            trial = recompute_derived({**bf, ln: val})
+            trial_pd = _score_row(model, feature_names, trial, calibrator)
+            assert trial_pd <= prev_pd + 0.01, (
+                f"Lever {ln} step from {current_val} to {val}: "
+                f"PD went up from {prev_pd:.4f} to {trial_pd:.4f}"
+            )
+            prev_pd = trial_pd
+
+
 def test_recourse_with_custom_levers():
     """Custom lever list must restrict recourse to those levers only."""
     r = recourse(MEENA_ID, levers=["receivable_days"])
@@ -158,3 +201,17 @@ def test_recourse_high_pd_borrowers_improve(bid):
         assert r["new_pd"] < s["pd"], (
             f"{bid}: new_pd={r['new_pd']} >= original pd={s['pd']}"
         )
+
+
+def test_recourse_build_artifacts():
+    """build_artifacts writes recourse/MSME-00001.json and metrics."""
+    import json
+
+    from core.paths import ARTIFACTS
+    from core.recourse import build_artifacts
+
+    build_artifacts(smoke=True)
+    p = ARTIFACTS / "recourse" / "MSME-00001.json"
+    assert p.exists(), "recourse/MSME-00001.json not written."
+    data = json.loads(p.read_text(encoding="utf-8"))
+    assert data["new_pd"] < APPROVAL_PD_THRESHOLD
