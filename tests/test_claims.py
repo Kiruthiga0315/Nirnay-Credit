@@ -181,23 +181,31 @@ def test_claim_backed_by_metrics(claim_row, metrics):
     file_ = claim_row["file"]
     lineno = claim_row["line"]
 
-    # Keys that use wildcards or describe separate artifact files cannot be resolved
+    # Keys that use wildcards or describe code-level documentation cannot be resolved
     # via dotted lookup into metrics.json — xfail with a directed message.
+    # NOTE: sensitivity_grid.* keys are now in metrics.json via write_metrics in run_grid().
     _SEPARATE_ARTIFACT_PREFIXES = (
-        "sensitivity_grid.",      # lives in artifacts/sensitivity_grid.json
         "documented in ",         # code-level documentation, not a metrics key
     )
-    _WILDCARD_KEYS = {"*"}
     if any(key.startswith(p) for p in _SEPARATE_ARTIFACT_PREFIXES) or "*" in key:
         pytest.xfail(
-            f"[{owner}/{file_}:L{lineno}] Key '{key}' refers to a separate artifact "
-            f"(not metrics.json). To fix: call write_metrics('<namespace>', {{...}}) "
-            f"in the module that owns this metric and update the key in claims/*.md."
+            f"[{owner}/{file_}:L{lineno}] Key '{key}' is a prose/wildcard key, not a "
+            f"resolvable metrics.json path. Fix: add write_metrics() call and update claims/*.md."
         )
 
     actual = _get_nested(metrics, key)
 
     # --- Step 1: key must exist ---
+    # Special case: sensitivity_grid.* keys are only written when run_grid() is called
+    # (not in the regular smoke pipeline). Skip rather than fail when grid hasn't run.
+    if actual is None and key.startswith("sensitivity_grid."):
+        claimed_val, mode = _parse_claimed_value(value_raw)
+        if mode == "varies":
+            pytest.skip(
+                f"[{owner}/{file_}:L{lineno}] sensitivity_grid key '{key}' not yet in "
+                f"metrics.json — run `python -m core.models --grid --smoke` to populate."
+            )
+
     assert actual is not None, (
         f"[{owner}/{file_}:L{lineno}] UNBACKED: key '{key}' not found in metrics.json. "
         f"Claim: '{claim_row['claim'][:80]}'"
@@ -282,7 +290,7 @@ def test_claims_audit_summary(metrics, capsys):
     stale = []
     separate_artifact = []
 
-    _SEPARATE_PREFIXES = ("sensitivity_grid.", "documented in ")
+    _SEPARATE_PREFIXES = ("documented in ",)
 
     for row in ALL_CLAIMS:
         key = row["key"]
