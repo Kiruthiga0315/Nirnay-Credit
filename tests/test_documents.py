@@ -30,8 +30,19 @@ def test_make_cam_contains_pd() -> None:
     assert "PD" in content
 
 
-def test_make_cam_contains_stub_banner_for_stub_model() -> None:
+from unittest.mock import patch
+
+@patch("core.models.score")
+def test_make_cam_contains_stub_banner_for_stub_model(mock_score) -> None:
     """When model_version starts with 'stub', the CAM must show a STUB notice."""
+    mock_score.return_value = {
+        "borrower_id": "MSME-00001",
+        "pd": 0.05,
+        "pd_band": "low",
+        "reasons": [],
+        "data_confidence": 80,
+        "model_version": "stub-0"
+    }
     content = make_cam(MEENA).decode("utf-8")
     # stub-0 is the current MODEL_VERSION, so STUB DATA must appear
     assert "STUB" in content
