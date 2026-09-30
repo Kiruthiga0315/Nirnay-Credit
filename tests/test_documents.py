@@ -32,6 +32,7 @@ def test_make_cam_contains_pd() -> None:
 
 from unittest.mock import patch
 
+
 @patch("core.models.score")
 def test_make_cam_contains_stub_banner_for_stub_model(mock_score) -> None:
     """When model_version starts with 'stub', the CAM must show a STUB notice."""
