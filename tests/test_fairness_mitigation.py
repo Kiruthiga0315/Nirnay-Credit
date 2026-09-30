@@ -112,9 +112,9 @@ def test_threshold_relaxes_approval():
 # ---------------------------------------------------------------------------
 
 def test_frontier_returns_points():
-    """Frontier sweep returns a list of dicts with required keys."""
-    points = frontier_sweep(strengths=[0.0, 0.5, 1.0])
-    assert len(points) == 3
+    """Frontier sweep returns at least 6 points with required keys."""
+    points = frontier_sweep()
+    assert len(points) >= 6
 
     for pt in points:
         assert "air_women_led" in pt
@@ -180,3 +180,29 @@ def test_no_banned_phrases_in_artifacts():
                 assert phrase not in content, (
                     f"Banned phrase '{phrase}' found in {fname}!"
                 )
+
+
+def test_recourse_equity_computed():
+    """Recourse-equity is computed for women-led vs others and rural vs urban."""
+    import json
+    build_artifacts(smoke=True)
+    fpath = ARTIFACTS / "fairness_groups.json"
+    with open(fpath, encoding="utf-8") as f:
+        data = json.load(f)
+
+    equity = data.get("recourse_equity", {})
+    assert "gender_equity" in equity
+    assert "location_equity" in equity
+
+    gender_groups = equity["gender_equity"].get("by_group", {})
+    location_groups = equity["location_equity"].get("by_group", {})
+
+    assert "female" in gender_groups, "female missing from gender recourse equity"
+    assert "male" in gender_groups, "male missing from gender recourse equity"
+    assert gender_groups["female"]["n"] > 0
+    assert gender_groups["male"]["n"] > 0
+
+    assert "rural" in location_groups, "rural missing from location recourse equity"
+    assert "urban" in location_groups, "urban missing from location recourse equity"
+    assert location_groups["rural"]["n"] > 0
+    assert location_groups["urban"]["n"] > 0
