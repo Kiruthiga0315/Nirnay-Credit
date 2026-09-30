@@ -28,9 +28,10 @@ import numpy as np
 import pandas as pd
 import yaml
 from scipy.stats import ks_2samp
+from sklearn.calibration import calibration_curve
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import brier_score_loss, roc_auc_score
+from sklearn.metrics import brier_score_loss, roc_auc_score, roc_curve
 from sklearn.model_selection import train_test_split
 
 from core.contracts import Borrower, ScoreResult
@@ -576,6 +577,66 @@ def build_artifacts(smoke: bool = False) -> None:
 
     # Write scoreboard artifact
     write_json("scoreboard.json", scoreboard)
+    
+    # --- T2: Model Cockpit Artifacts ---
+    def get_roc(y_true, y_prob):
+        fpr, tpr, _ = roc_curve(y_true, y_prob)
+        idx = np.linspace(0, len(fpr)-1, min(50, len(fpr))).astype(int)
+        return {"fpr": fpr[idx].tolist(), "tpr": tpr[idx].tolist()}
+
+    def get_ks_curve(y_true, y_prob):
+        y_true_arr = np.asarray(y_true)
+        good_prob = y_prob[y_true_arr == 0]
+        bad_prob = y_prob[y_true_arr == 1]
+        
+        thresholds = np.linspace(0, 1, 50)
+        cum_good = [float(np.mean(good_prob <= t)) for t in thresholds] if len(good_prob)>0 else [0.0]*50
+        cum_bad = [float(np.mean(bad_prob <= t)) for t in thresholds] if len(bad_prob)>0 else [0.0]*50
+        
+        return {
+            "thresholds": thresholds.tolist(),
+            "cum_good": cum_good,
+            "cum_bad": cum_bad
+        }
+    
+    def get_calib(y_true, y_prob):
+        prob_true, prob_pred = calibration_curve(y_true, y_prob, n_bins=10)
+        return {"prob_true": prob_true.tolist(), "prob_pred": prob_pred.tolist()}
+
+    roc_champ = get_roc(y_test.values, y_prob_champ)
+    roc_chall = get_roc(y_test.values, y_prob_chall)
+    
+    ks_champ = get_ks_curve(y_test.values, y_prob_champ)
+    ks_chall = get_ks_curve(y_test.values, y_prob_chall)
+    
+    calib_champ = get_calib(y_test.values, y_prob_champ)
+    calib_chall = get_calib(y_test.values, y_prob_chall)
+    
+    psi_features = {}
+    for f in features:
+        if X_train_lgb[f].dtype.name in ['category', 'object']:
+            continue
+        psi_features[f] = float(compute_psi(X_train_lgb[f].dropna().values, X_test_lgb[f].dropna().values, bins=10))
+    
+    auc_thin_both = float(roc_auc_score(y_test[thin_mask], y_prob_chall[thin_mask])) if thin_mask.sum() > 0 and y_test[thin_mask].nunique() > 1 else 0.5
+    
+    cockpit_artifacts = {
+        "roc": {"champion": roc_champ, "challenger": roc_chall},
+        "ks_curve": {"champion": ks_champ, "challenger": ks_chall},
+        "calibration": {"champion": calib_champ, "challenger": calib_chall},
+        "ablation": {
+            "bureau_only": float(auc_bureau),
+            "alt_data_only": float(auc_alt),
+            "both": float(chall_metrics["auc"]),
+            "thin_bureau_only": float(auc_thin_bureau_only),
+            "thin_alt_data": float(auc_thin_alt_data),
+            "thin_both": auc_thin_both
+        },
+        "psi_features": psi_features,
+        "champion_metrics": champ_metrics,
+        "challenger_metrics": chall_metrics
+    }
+    write_json("model_cockpit.json", cockpit_artifacts)
     print(f"[models] scoreboard: iso-loss approvals={scoreboard['iso_loss']['approvals']}, "
           f"extra_approvals={scoreboard['extra_approvals_at_equal_loss']}")
 
