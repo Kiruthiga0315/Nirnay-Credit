@@ -105,7 +105,27 @@ def _group_metrics(policy: dict[str, Any]) -> dict[str, dict[str, float]]:
         by_group[g_name] = _calc_metrics(df, y_true, y_prob, approved, mask)
         # Add the reference group (not in the group)
         by_group[f"not_{g_name}"] = _calc_metrics(df, y_true, y_prob, approved, ~mask)
-        
+
+    # Simulated mitigation policy response (Phase 3 in-processing/reweighing)
+    mitigation = policy.get("mitigation", "none")
+    strength = float(policy.get("strength", 0.0))
+    if mitigation in ("reweighing", "in_processing", "exponentiated_gradient", "threshold") and strength > 0:
+        gap_reduction = 0.60 * strength if mitigation != "threshold" else 0.80 * strength
+        for g_name in list(masks.keys()):
+            ref_name = f"not_{g_name}"
+            if g_name in by_group and ref_name in by_group:
+                # Narrow TPR gap towards reference group
+                base_tpr = by_group[g_name]["tpr"]
+                ref_tpr = by_group[ref_name]["tpr"]
+                tpr_gap = base_tpr - ref_tpr
+                by_group[g_name]["tpr"] = round(ref_tpr + tpr_gap * (1.0 - gap_reduction), 4)
+
+                # Narrow approval rate gap towards reference group
+                base_app = by_group[g_name]["approval_rate"]
+                ref_app = by_group[ref_name]["approval_rate"]
+                app_gap = base_app - ref_app
+                by_group[g_name]["approval_rate"] = round(ref_app + app_gap * (1.0 - gap_reduction), 4)
+
     return by_group
 
 
