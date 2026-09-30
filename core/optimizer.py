@@ -137,23 +137,19 @@ def optimize(policy_params: dict[str, Any] | None = None) -> OptimizeResult:
                 x[i] = 1.0
 
     # Documented Rounding Strategy:
-    # 1. Sort borrowers descending by their LP fractional assignment (x_i).
+    # 1. Select borrowers with LP assignment x_i >= 0.5 (or top fractional allocations).
     # 2. Break ties by net profit.
-    # 3. Approve greedily sequentially, strictly enforcing budget and loss cap.
-    order = sorted(range(n), key=lambda i: (x[i], features[all_ids[i]]["net"]), reverse=True)
+    # 3. Approve greedily sequentially while strictly enforcing budget and loss cap.
+    # 4. If no candidate has x_i >= 0.5, greedily approve the highest positive net borrower.
+    order = sorted(range(n), key=lambda i: (x[i] >= 0.5, x[i], features[all_ids[i]]["net"]), reverse=True)
     
     approved: list[str] = []
     total_exposure = 0.0
     total_el = 0.0
     
     for i in order:
-        if x[i] < 1e-4 and features[all_ids[i]]["net"] <= 0:
-            # Avoid picking negative net unless LP gave it a weight to satisfy inclusion
-            if len(approved) > 0:
-                # Still check inclusion informally to avoid stopping too early,
-                # but if LP weight is ~0, we usually don't need it.
-                pass
-                
+        if x[i] < 0.5:
+            continue
         bid = all_ids[i]
         f = features[bid]
         
@@ -165,6 +161,22 @@ def optimize(policy_params: dict[str, Any] | None = None) -> OptimizeResult:
         approved.append(bid)
         total_exposure += float(f["ticket"])
         total_el += float(f["el"])
+
+    # Fallback to ensure at least one positive-net borrower if none passed the 0.5 LP threshold
+    if not approved:
+        pos_order = sorted(
+            [i for i in range(n) if features[all_ids[i]]["net"] > 0],
+            key=lambda i: features[all_ids[i]]["net"],
+            reverse=True,
+        )
+        for i in pos_order:
+            bid = all_ids[i]
+            f = features[bid]
+            if total_exposure + float(f["ticket"]) <= budget and total_el + float(f["el"]) <= loss_cap:
+                approved.append(bid)
+                total_exposure += float(f["ticket"])
+                total_el += float(f["el"])
+                break
 
     def _share(group_key: str) -> float:
         if not approved:
