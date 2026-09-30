@@ -317,6 +317,10 @@ def _add_oot_split(borrowers: pd.DataFrame, config: dict) -> pd.DataFrame:
     borrowers["oot_train_end"] = train_end
     borrowers["oot_test_start"] = test_start
     borrowers["oot_test_end"] = test_end
+    
+    n = len(borrowers)
+    borrowers["application_month"] = np.linspace(1, 36.999, n).astype(int)
+    
     return borrowers
 
 

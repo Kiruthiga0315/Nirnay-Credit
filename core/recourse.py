@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 
 from core.contracts import Borrower, RecourseAction, RecourseResult
-from core.features import lever_config, load_spec, model_features, recompute_derived
+from core.features import by_name, lever_config, load_spec, model_features, recompute_derived
 from core.models import APPROVAL_PD_THRESHOLD, MODEL_VERSION, score
 from core.paths import MODELS
 from core.reference import MEENA, MEENA_ID, resolve
@@ -59,16 +59,18 @@ def _load_scoring_model():
 
 def _score_row(model, feature_names: list[str], row: dict[str, Any]) -> float:
     """Score a single row with the given model; return P(default)."""
-    vals: dict[str, Any] = {}
-    for name in feature_names:
-        val = row.get(name, np.nan)
-        if isinstance(val, str):
-            val = abs(hash(val)) % 1000
-        elif val is None:
-            val = np.nan
-        vals[name] = val
-    X = pd.DataFrame([vals])
-    proba = model.predict_proba(X)[0][1]
+    spec = by_name()
+    vals = {name: row.get(name, np.nan) for name in feature_names}
+    df = pd.DataFrame([vals])
+
+    for f in feature_names:
+        if spec.get(f, {}).get("type") == "cat":
+            cats = spec[f].get("categories", [])
+            df[f] = pd.Categorical(df[f], categories=cats)
+        else:
+            df[f] = pd.to_numeric(df[f], errors="coerce")
+
+    proba = model.predict_proba(df)[0][1]
     return float(proba)
 
 
