@@ -1,0 +1,18 @@
+{
+  "borrower_id": "MSME-00001",
+  "actions": [
+    {
+      "lever": "receivable_days",
+      "label": "Receivable days",
+      "current": 78.0,
+      "target": 28.0,
+      "unit": "days",
+      "cost": 15.0,
+      "months": 20.0
+    }
+  ],
+  "new_pd": 0.0661,
+  "cost": 15.0,
+  "months": 20.0,
+  "valid_until_model": "v2-reject-inference"
+}

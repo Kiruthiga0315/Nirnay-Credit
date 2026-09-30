@@ -1,0 +1,120 @@
+{
+  "demonetisation_style": [
+    {
+      "assumption": "correlation_rho",
+      "low": 245937154.1,
+      "high": 386723306.92,
+      "base": 324408981.9
+    },
+    {
+      "assumption": "receivable_days_delta",
+      "low": 309482770.69,
+      "high": 325354153.88,
+      "base": 324408981.9
+    },
+    {
+      "assumption": "revenue_change",
+      "low": 327901790.75,
+      "high": 320804248.33,
+      "base": 324408981.9
+    }
+  ],
+  "gst_rollout_style": [
+    {
+      "assumption": "correlation_rho",
+      "low": 241089077.76,
+      "high": 379759675.17,
+      "base": 318389543.83
+    },
+    {
+      "assumption": "gstr1_3b_mismatch_delta",
+      "low": 308288170.94,
+      "high": 318550899.98,
+      "base": 318389543.83
+    },
+    {
+      "assumption": "revenue_change",
+      "low": 321172763.88,
+      "high": 317046688.54,
+      "base": 318389543.83
+    },
+    {
+      "assumption": "gst_filing_delay_days_delta",
+      "low": 317000654.0,
+      "high": 319033538.38,
+      "base": 318389543.83
+    }
+  ],
+  "covid_style": [
+    {
+      "assumption": "correlation_rho",
+      "low": 268757746.18,
+      "high": 419636481.12,
+      "base": 352812671.48
+    },
+    {
+      "assumption": "receivable_days_delta",
+      "low": 327605373.62,
+      "high": 354010555.68,
+      "base": 352812671.48
+    },
+    {
+      "assumption": "revenue_change",
+      "low": 361916918.66,
+      "high": 343470686.35,
+      "base": 352812671.48
+    }
+  ],
+  "rate_hike_2022_23_style": [
+    {
+      "assumption": "correlation_rho",
+      "low": 222536351.74,
+      "high": 352686053.68,
+      "base": 295122690.17
+    },
+    {
+      "assumption": "revenue_change",
+      "low": 296413192.19,
+      "high": 295006455.14,
+      "base": 295122690.17
+    },
+    {
+      "assumption": "cost_of_debt_bps_delta",
+      "low": 295122690.17,
+      "high": 295122690.17,
+      "base": 295122690.17
+    }
+  ],
+  "custom": [
+    {
+      "assumption": "correlation_rho",
+      "low": 269400271.68,
+      "high": 420548528.99,
+      "base": 353605178.14
+    },
+    {
+      "assumption": "receivable_days_delta",
+      "low": 308106492.18,
+      "high": 355197499.26,
+      "base": 353605178.14
+    },
+    {
+      "assumption": "revenue_change",
+      "low": 360322458.13,
+      "high": 344747548.42,
+      "base": 353605178.14
+    },
+    {
+      "assumption": "gst_filing_delay_days_delta",
+      "low": 349891365.91,
+      "high": 354466169.5,
+      "base": 353605178.14
+    },
+    {
+      "assumption": "cost_of_debt_bps_delta",
+      "low": 353605178.14,
+      "high": 353605178.14,
+      "base": 353605178.14
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "circular_upi": {
+    "attack": "circular_upi",
+    "flagged_before": 26,
+    "flagged_after": 76,
+    "auc_before": 0.7223,
+    "auc_after": 0.7154
+  },
+  "window_dressing": {
+    "attack": "window_dressing",
+    "flagged_before": 1,
+    "flagged_after": 51,
+    "auc_before": 0.7223,
+    "auc_after": 0.7113
+  },
+  "invoice_round_tripping": {
+    "attack": "invoice_round_tripping",
+    "flagged_before": 0,
+    "flagged_after": 0,
+    "auc_before": 0.7223,
+    "auc_after": 0.7176
+  }
+}
