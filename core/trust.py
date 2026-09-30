@@ -279,6 +279,7 @@ def build_artifacts(smoke: bool = False) -> None:
         "flagged_firms_count": flagged_firms_count,
         "clean_firms_count": clean_firms_count,
         "clean_firms_share": round(clean_firms_count / max(1, total_firms), 4),
+        "attacks_tested": len(ATTACKS),
     })
 
     print(f"[trust] Reconciled {total_firms} firms. Avg confidence: {avg_conf:.1f}, "
