@@ -1,0 +1,122 @@
+{
+  "scenario": "custom",
+  "expected_loss": 172096712.39,
+  "es95": 361605891.61,
+  "base_el": 131718668.09,
+  "el_no_contagion": 150343296.86,
+  "es95_no_contagion": 322734044.57,
+  "segment_losses": {
+    "textile": 33846416.41,
+    "auto_components": 24897896.74,
+    "logistics": 27484852.22,
+    "food_processing": 36408702.48,
+    "services": 25725107.41,
+    "retail_trading": 23733737.12
+  },
+  "first_failing_segment": "food_processing",
+  "tornado": [
+    {
+      "assumption": "correlation_rho",
+      "low": 269400271.68,
+      "high": 420548528.99,
+      "base": 353605178.14
+    },
+    {
+      "assumption": "receivable_days_delta",
+      "low": 308106492.18,
+      "high": 355197499.26,
+      "base": 353605178.14
+    },
+    {
+      "assumption": "revenue_change",
+      "low": 360322458.13,
+      "high": 344747548.42,
+      "base": 353605178.14
+    },
+    {
+      "assumption": "gst_filing_delay_days_delta",
+      "low": 349891365.91,
+      "high": 354466169.5,
+      "base": 353605178.14
+    },
+    {
+      "assumption": "cost_of_debt_bps_delta",
+      "low": 353605178.14,
+      "high": 353605178.14,
+      "base": 353605178.14
+    }
+  ],
+  "bands": {
+    "p5": 40556646.39,
+    "p50": 146386632.06,
+    "p95": 361605891.61
+  },
+  "mitigation": {
+    "restructured_count": 200,
+    "loss_before_inr": 28369896.49,
+    "loss_after_inr": 17119120.97,
+    "loss_saved_inr": 11250775.52
+  },
+  "heatmap": [
+    {
+      "sector": "auto_components",
+      "size": "micro",
+      "loss": 366121.32
+    },
+    {
+      "sector": "auto_components",
+      "size": "small",
+      "loss": 24531775.43
+    },
+    {
+      "sector": "food_processing",
+      "size": "micro",
+      "loss": 747509.96
+    },
+    {
+      "sector": "food_processing",
+      "size": "small",
+      "loss": 35661192.52
+    },
+    {
+      "sector": "logistics",
+      "size": "micro",
+      "loss": 663488.64
+    },
+    {
+      "sector": "logistics",
+      "size": "small",
+      "loss": 26821363.58
+    },
+    {
+      "sector": "retail_trading",
+      "size": "micro",
+      "loss": 338234.74
+    },
+    {
+      "sector": "retail_trading",
+      "size": "small",
+      "loss": 23395502.38
+    },
+    {
+      "sector": "services",
+      "size": "micro",
+      "loss": 512980.58
+    },
+    {
+      "sector": "services",
+      "size": "small",
+      "loss": 25212126.83
+    },
+    {
+      "sector": "textile",
+      "size": "micro",
+      "loss": 556315.94
+    },
+    {
+      "sector": "textile",
+      "size": "small",
+      "loss": 33290100.47
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "model_version": "challenger",
+  "n_borrowers": 1,
+  "mean_abs_shap": {
+    "bureau_score": 0.09655733566416187,
+    "collateral_value_ratio": 0.9652374703597421,
+    "vintage_months": 0.2591522172353574,
+    "gst_filing_regularity": 0.18369875941905145,
+    "gst_filing_delay_days": 0.32013883020564804,
+    "gstr1_3b_mismatch": 0.5517227559637969,
+    "receivable_days": 0.048160499765028,
+    "upi_inflow_3m_avg": 0.2404484436606595,
+    "avg_bank_balance_3m": 0.5809138528077558,
+    "inflow_stability_cv": 0.32843068276093934,
+    "cheque_bounces_6m": 0.0003355280679091226,
+    "utility_delay_days": 0.0022534884533234175,
+    "invoice_digitisation_share": 0.25762183815261086,
+    "inventory_days": 0.18297771681453553,
+    "payable_days": 0.1762887368250876,
+    "cash_conversion_days": 0.20316148054825217,
+    "supplier_concentration": 0.15216297675255155,
+    "customer_concentration": 0.1949062172260045,
+    "revenue_growth_3m": 0.39551153433238617,
+    "sector": 0.6958802549194242,
+    "udyam_category": 0.0468173921970499,
+    "requested_amount": 0.627094104534608
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "model_version": "v2-reject-inference",
+  "n_test": 667,
+  "legacy_loss_rate": 0.07542579075425791,
+  "legacy_approval_rate": 0.616191904047976,
+  "iso_loss": {
+    "description": "Approvals at the loss rate the legacy policy achieved",
+    "target_loss_rate": 0.07542579075425791,
+    "approvals": {
+      "legacy": 411,
+      "approved_only": 419,
+      "inferred": 484,
+      "oracle": 534
+    }
+  },
+  "iso_approval": {
+    "description": "Loss rate at the legacy approval count",
+    "target_n_approved": 411,
+    "loss_rates": {
+      "legacy": 0.07542579075425791,
+      "approved_only": 0.072992700729927,
+      "inferred": 0.0681265206812652,
+      "oracle": 0.072992700729927
+    }
+  },
+  "extra_approvals_at_equal_loss": 73,
+  "auc": {
+    "legacy": 0.5236146831891513,
+    "approved_only": 0.5532499415478138,
+    "inferred": 0.565685644143091,
+    "oracle": 0.583235913023147
+  },
+  "subgroups": {
+    "thin_file": {
+      "n": 237,
+      "auc_approved_only": 0.5720446473871131,
+      "auc_inferred": 0.6418061897513951,
+      "auc_oracle": 0.56544901065449,
+      "legacy_approval_rate": 0.5358649789029536
+    },
+    "women_led": {
+      "n": 223,
+      "auc_approved_only": 0.4387820512820513,
+      "auc_inferred": 0.427724358974359,
+      "auc_oracle": 0.4998397435897436,
+      "legacy_approval_rate": 0.6053811659192825
+    },
+    "rural": {
+      "n": 226,
+      "auc_approved_only": 0.6029126213592232,
+      "auc_inferred": 0.6114077669902913,
+      "auc_oracle": 0.6396844660194175,
+      "legacy_approval_rate": 0.6106194690265486
+    }
+  },
+  "expected_profit": {
+    "lgd": 0.45,
+    "margin": 0.1,
+    "ticket": 500000,
+    "values": {
+      "legacy": -200000.0,
+      "approved_only": 14425000.0,
+      "inferred": 14800000.0,
+      "oracle": 11025000.0
+    }
+  }
+}

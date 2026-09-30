@@ -1,0 +1,9 @@
+{
+  "meena_new_pd": 0.0661,
+  "meena_cost": 15.0,
+  "meena_months": 20.0,
+  "meena_n_actions": 1,
+  "approval_threshold": 0.1,
+  "model_version": "v2-reject-inference",
+  "_note": "Under documented assumptions: decision aid, illustrative parameters."
+}

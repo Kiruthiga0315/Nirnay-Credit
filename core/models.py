@@ -757,6 +757,33 @@ def run_grid(smoke: bool = True) -> dict:
     write_json("sensitivity_grid.json", grid_result)
     print(f"\n[grid] Wrote sensitivity_grid.json with {len(cells)} cells.")
 
+    # Expose summary metrics so test_claims.py can verify sensitivity_grid claims.
+    lifts = [c["lift_approvals_at_equal_loss"] for c in cells]
+    thin_lifts = [c["thin_file_auc_lift"] for c in cells]
+    n_direction_holds = sum(1 for c in cells if c["direction_holds"])
+    n_thin_positive = sum(1 for tl in thin_lifts if tl > 0)
+    write_metrics("sensitivity_grid", {
+        "direction_holds_all": all(c["direction_holds"] for c in cells),
+        "n_cells_direction_holds": n_direction_holds,
+        "n_cells": len(cells),
+        "min_lift": int(min(lifts)) if lifts else 0,
+        "max_lift": int(max(lifts)) if lifts else 0,
+        "thin_file_positive_cells": n_thin_positive,
+        "cells": [
+            {
+                "kappa": c["kappa"],
+                "bias_strength": c["bias_strength"],
+                "lift": c["lift_approvals_at_equal_loss"],
+                "thin_file_auc_lift": c["thin_file_auc_lift"],
+                "direction_holds": c["direction_holds"],
+            }
+            for c in cells
+        ],
+    })
+    print(f"[grid] sensitivity_grid metrics written: "
+          f"direction_holds_all={all(c['direction_holds'] for c in cells)}, "
+          f"min_lift={min(lifts) if lifts else 0}, max_lift={max(lifts) if lifts else 0}")
+
     # Restore default config data
     gen_build(smoke=smoke, kappa="medium", bias_strength="medium")
     legacy_build(smoke=smoke)

@@ -1,0 +1,18 @@
+{
+  "thin_file_share_total": 0.3465,
+  "thin_file_share_female": 0.3895705521472393,
+  "thin_file_share_male": 0.31384615384615383,
+  "thin_file_share_rural": 0.4063926940639269,
+  "thin_file_share_urban": 0.3640552995391705,
+  "thin_file_share_metro": 0.273121387283237,
+  "default_rate_12m": 0.0885,
+  "default_rate_target": 0.08,
+  "timing_share_of_defaults": 0.615819209039548,
+  "n_timing_defaults": 109,
+  "n_solvency_defaults": 203,
+  "n_firms": 2000,
+  "kappa": 0.5,
+  "kappa_label": "medium",
+  "bias_strength": 1.0,
+  "bias_strength_label": "medium"
+}

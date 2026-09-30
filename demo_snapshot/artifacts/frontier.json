@@ -1,0 +1,85 @@
+[
+  {
+    "policy": {
+      "mitigation": "none",
+      "strength": 0.0
+    },
+    "air_women_led": 0.9984,
+    "tpr_gap_women_led": -0.0146,
+    "n_approved": 515,
+    "expected_profit_inr": 13375000.0,
+    "lgd": 0.45,
+    "margin": 0.1,
+    "ticket_inr": 500000
+  },
+  {
+    "policy": {
+      "mitigation": "reweighing",
+      "strength": 0.2
+    },
+    "air_women_led": 0.9299,
+    "tpr_gap_women_led": -0.0771,
+    "n_approved": 490,
+    "expected_profit_inr": 15425000.0,
+    "lgd": 0.45,
+    "margin": 0.1,
+    "ticket_inr": 500000,
+    "cost_per_air_point_inr": 29927007.0
+  },
+  {
+    "policy": {
+      "mitigation": "reweighing",
+      "strength": 0.4
+    },
+    "air_women_led": 0.9324,
+    "tpr_gap_women_led": -0.0744,
+    "n_approved": 486,
+    "expected_profit_inr": 15225000.0,
+    "lgd": 0.45,
+    "margin": 0.1,
+    "ticket_inr": 500000,
+    "cost_per_air_point_inr": 28030303.0
+  },
+  {
+    "policy": {
+      "mitigation": "reweighing",
+      "strength": 0.6
+    },
+    "air_women_led": 0.9194,
+    "tpr_gap_women_led": -0.0813,
+    "n_approved": 478,
+    "expected_profit_inr": 14550000.0,
+    "lgd": 0.45,
+    "margin": 0.1,
+    "ticket_inr": 500000,
+    "cost_per_air_point_inr": 14873418.0
+  },
+  {
+    "policy": {
+      "mitigation": "reweighing",
+      "strength": 0.8
+    },
+    "air_women_led": 0.9268,
+    "tpr_gap_women_led": -0.0744,
+    "n_approved": 488,
+    "expected_profit_inr": 14775000.0,
+    "lgd": 0.45,
+    "margin": 0.1,
+    "ticket_inr": 500000,
+    "cost_per_air_point_inr": 19553073.0
+  },
+  {
+    "policy": {
+      "mitigation": "reweighing",
+      "strength": 1.0
+    },
+    "air_women_led": 0.9034,
+    "tpr_gap_women_led": -0.0915,
+    "n_approved": 487,
+    "expected_profit_inr": 15275000.0,
+    "lgd": 0.45,
+    "margin": 0.1,
+    "ticket_inr": 500000,
+    "cost_per_air_point_inr": 20000000.0
+  }
+]

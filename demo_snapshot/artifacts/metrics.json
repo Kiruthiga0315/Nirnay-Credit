@@ -1,0 +1,314 @@
+{
+  "early_warning": {
+    "top_decile_lift": 1.538,
+    "median_lead_time_months": 0.0,
+    "mean_lead_time_months": 1.48,
+    "lead_time_by_segment": {
+      "logistics": 0.0,
+      "auto_components": 0.0,
+      "services": 2.0,
+      "food_processing": 1.0,
+      "textile": 0.0,
+      "retail_trading": 0.0
+    },
+    "oot_defaulters_count": 65,
+    "oot_eval_months": [
+      25,
+      36
+    ],
+    "top_decile_cutoff": 0.0063,
+    "base_default_rate_oot": 0.00314,
+    "top_decile_default_rate_oot": 0.00484
+  },
+  "explain": {
+    "model_version": "challenger",
+    "n_borrowers": 1,
+    "mean_abs_shap": {
+      "bureau_score": 0.09655733566416187,
+      "collateral_value_ratio": 0.9652374703597421,
+      "vintage_months": 0.2591522172353574,
+      "gst_filing_regularity": 0.18369875941905145,
+      "gst_filing_delay_days": 0.32013883020564804,
+      "gstr1_3b_mismatch": 0.5517227559637969,
+      "receivable_days": 0.048160499765028,
+      "upi_inflow_3m_avg": 0.2404484436606595,
+      "avg_bank_balance_3m": 0.5809138528077558,
+      "inflow_stability_cv": 0.32843068276093934,
+      "cheque_bounces_6m": 0.0003355280679091226,
+      "utility_delay_days": 0.0022534884533234175,
+      "invoice_digitisation_share": 0.25762183815261086,
+      "inventory_days": 0.18297771681453553,
+      "payable_days": 0.1762887368250876,
+      "cash_conversion_days": 0.20316148054825217,
+      "supplier_concentration": 0.15216297675255155,
+      "customer_concentration": 0.1949062172260045,
+      "revenue_growth_3m": 0.39551153433238617,
+      "sector": 0.6958802549194242,
+      "udyam_category": 0.0468173921970499,
+      "requested_amount": 0.627094104534608
+    }
+  },
+  "external": {
+    "auc_champion": 0.5714285714285714,
+    "ks_champion": 0.21428571428571427,
+    "ece_champion": 0.1778479800862911,
+    "auc_challenger": 0.5,
+    "ks_challenger": 0.0,
+    "ece_challenger": 0.03809523809523796
+  },
+  "fairness": {
+    "women_led_air": 0.9984,
+    "rural_air": 0.9785,
+    "new_to_credit_air": 0.9666,
+    "women_led_tpr_gap": -0.0146,
+    "rural_tpr_gap": -0.0107,
+    "new_to_credit_tpr_gap": -0.0104,
+    "women_rural_intersectional_approval": 0.7681,
+    "women_rural_intersectional_small_n": true,
+    "proxy_audit_auc": 0.5049,
+    "proxy_audit_accuracy": 0.665,
+    "frontier_points": 6,
+    "cost_of_fairness_sentence": "Under our documented assumptions, closing the AIR gap from 0.9984 to 0.9034 costs approximately INR -1,900,000 in expected profit (illustrative parameters: LGD=0.45, margin=0.1, ticket=INR 500,000).",
+    "_note": "Measured and mitigated under stated definitions: Positive outcome is Non-default."
+  },
+  "forecast": {
+    "n_train_rows": 48000,
+    "n_test_rows": 24000,
+    "raw_interval_coverage_80pct": 0.8863,
+    "conformal_interval_coverage_80pct": 0.8863,
+    "conformal_delta_inr": 0.0,
+    "coverage_p10_p90": 0.8863,
+    "coverage_by_sector": {},
+    "coverage_by_month": {
+      "25": 0.8855,
+      "26": 0.8825,
+      "27": 0.8895,
+      "28": 0.9045,
+      "29": 0.8915,
+      "30": 0.8805,
+      "31": 0.867,
+      "32": 0.8785,
+      "33": 0.8825,
+      "34": 0.8995,
+      "35": 0.8895,
+      "36": 0.8845
+    },
+    "model_version": "lgbm-quantile-v1",
+    "_note": "Under documented assumptions: synthetic panel data; coverage is method validation."
+  },
+  "generator": {
+    "thin_file_share_total": 0.3465,
+    "thin_file_share_female": 0.3895705521472393,
+    "thin_file_share_male": 0.31384615384615383,
+    "thin_file_share_rural": 0.4063926940639269,
+    "thin_file_share_urban": 0.3640552995391705,
+    "thin_file_share_metro": 0.273121387283237,
+    "default_rate_12m": 0.0885,
+    "default_rate_target": 0.08,
+    "timing_share_of_defaults": 0.615819209039548,
+    "n_timing_defaults": 109,
+    "n_solvency_defaults": 203,
+    "n_firms": 2000,
+    "kappa": 0.5,
+    "kappa_label": "medium",
+    "bias_strength": 1.0,
+    "bias_strength_label": "medium"
+  },
+  "governance": {
+    "overrides": 1
+  },
+  "legacy_policy": {
+    "approval_rate": 0.618,
+    "override_share": 0.084,
+    "n_approved_below_cutoff": 52,
+    "n_rejected_above_cutoff": 116,
+    "cutoff": 0.365243506314247,
+    "female_approval_rate": 0.6165644171779141,
+    "male_approval_rate": 0.6230769230769231,
+    "rural_approval_rate": 0.6103500761035008,
+    "metro_approval_rate": 0.630057803468208,
+    "urban_approval_rate": 0.6129032258064516,
+    "observed_default_rate": 0.08818770226537216,
+    "n_approved": 1236,
+    "n_rejected": 764
+  },
+  "models": {
+    "auc_champion_oot": 0.6105263157894737,
+    "auc_challenger_oot": 0.5397707979626485,
+    "gini_challenger_oot": 0.07954159592529697,
+    "ks_challenger_oot": 0.16044142614601017,
+    "brier_challenger_oot": 0.07316339820210689,
+    "ece_challenger": 0.04728872106670476,
+    "psi_challenger": 0.0075117186813406355,
+    "expected_profit_champion": 8900000.0,
+    "expected_profit_challenger": 8900000.0,
+    "auc_bureau_only": 0.44011035653650254,
+    "auc_alt_data": 0.5715619694397284,
+    "auc_thin_bureau_only": 0.5,
+    "auc_thin_alt_data": 0.5991452991452991,
+    "auc_approved_only_oot": 0.5532499415478138,
+    "auc_inferred_oot": 0.565685644143091,
+    "auc_oracle_oot": 0.583235913023147,
+    "extra_approvals_at_equal_loss": 73,
+    "legacy_loss_rate": 0.07542579075425791
+  },
+  "optimizer": {
+    "frontier": [
+      {
+        "inclusion_floor": 0.0,
+        "expected_profit": 14808.34,
+        "cost_of_inclusion": 0.0,
+        "approved_count": 5,
+        "women_led_share": 0.4
+      },
+      {
+        "inclusion_floor": 0.3,
+        "expected_profit": 14808.34,
+        "cost_of_inclusion": 0.0,
+        "approved_count": 5,
+        "women_led_share": 0.4
+      }
+    ]
+  },
+  "recourse": {
+    "meena_new_pd": 0.0661,
+    "meena_cost": 15.0,
+    "meena_months": 20.0,
+    "meena_n_actions": 1,
+    "approval_threshold": 0.1,
+    "model_version": "v2-reject-inference",
+    "_note": "Under documented assumptions: decision aid, illustrative parameters."
+  },
+  "sensitivity_grid": {
+    "direction_holds_all": true,
+    "n_cells_direction_holds": 9,
+    "n_cells": 9,
+    "min_lift": 24,
+    "max_lift": 208,
+    "thin_file_positive_cells": 4,
+    "cells": [
+      {
+        "kappa": "high",
+        "bias_strength": "weak",
+        "lift": 182,
+        "thin_file_auc_lift": 0.0089,
+        "direction_holds": true
+      },
+      {
+        "kappa": "high",
+        "bias_strength": "medium",
+        "lift": 143,
+        "thin_file_auc_lift": -0.0222,
+        "direction_holds": true
+      },
+      {
+        "kappa": "high",
+        "bias_strength": "strong",
+        "lift": 208,
+        "thin_file_auc_lift": -0.0253,
+        "direction_holds": true
+      },
+      {
+        "kappa": "medium",
+        "bias_strength": "weak",
+        "lift": 155,
+        "thin_file_auc_lift": 0.0214,
+        "direction_holds": true
+      },
+      {
+        "kappa": "medium",
+        "bias_strength": "medium",
+        "lift": 73,
+        "thin_file_auc_lift": 0.0698,
+        "direction_holds": true
+      },
+      {
+        "kappa": "medium",
+        "bias_strength": "strong",
+        "lift": 117,
+        "thin_file_auc_lift": -0.027,
+        "direction_holds": true
+      },
+      {
+        "kappa": "low",
+        "bias_strength": "weak",
+        "lift": 24,
+        "thin_file_auc_lift": -0.024,
+        "direction_holds": true
+      },
+      {
+        "kappa": "low",
+        "bias_strength": "medium",
+        "lift": 154,
+        "thin_file_auc_lift": 0.0695,
+        "direction_holds": true
+      },
+      {
+        "kappa": "low",
+        "bias_strength": "strong",
+        "lift": 192,
+        "thin_file_auc_lift": -0.07,
+        "direction_holds": true
+      }
+    ]
+  },
+  "stress": {
+    "demonetisation_style": {
+      "EL": 155508102.81,
+      "ES95": 332021535.53,
+      "EL_no_contagion": 140799008.95,
+      "ES95_no_contagion": 305480097.27,
+      "mitigation_saved_inr": 11820167.88
+    },
+    "gst_rollout_style": {
+      "EL": 152068353.41,
+      "ES95": 325923897.39,
+      "EL_no_contagion": 143646545.5,
+      "ES95_no_contagion": 310818989.67,
+      "mitigation_saved_inr": 11243695.31
+    },
+    "covid_style": {
+      "EL": 171636457.27,
+      "ES95": 360803722.76,
+      "EL_no_contagion": 152423264.3,
+      "ES95_no_contagion": 326545360.08,
+      "mitigation_saved_inr": 11594528.3
+    },
+    "rate_hike_2022_23_style": {
+      "EL": 139126835.39,
+      "ES95": 302317586.83,
+      "EL_no_contagion": 129449764.78,
+      "ES95_no_contagion": 284517035.64,
+      "mitigation_saved_inr": 12732257.82
+    },
+    "custom": {
+      "EL": 172096712.39,
+      "ES95": 361605891.61,
+      "EL_no_contagion": 150343296.86,
+      "ES95_no_contagion": 322734044.57,
+      "mitigation_saved_inr": 11250775.52
+    }
+  },
+  "structuring": {
+    "meena_tenor_months": 12,
+    "meena_violations": 0,
+    "meena_default_flat": 0.1173,
+    "meena_default_matched": 0.0842,
+    "default_flat": 0.1676,
+    "default_matched": 0.1203,
+    "lift_matched_vs_flat": 0.2822,
+    "default_flat_solvency": 0.2514,
+    "default_matched_solvency": 0.1804,
+    "lift_solvency_heavy": 0.2824,
+    "interest_rate_assumption": 0.14,
+    "n_borrowers_compared": 10,
+    "_note": "Under documented assumptions: illustrative rate 14% p.a.; lift shrinks under solvency-heavy config but persists."
+  },
+  "trust": {
+    "avg_data_confidence": 70.23,
+    "flagged_firms_count": 1976,
+    "clean_firms_count": 24,
+    "clean_firms_share": 0.012,
+    "attacks_tested": 3
+  }
+}

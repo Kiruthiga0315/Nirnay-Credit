@@ -1,6 +1,6 @@
 ---
 owner: M1
-status: v1
+status: v2 (audit-finalised 2026-10-01)
 ---
 # Data statement
 
@@ -27,6 +27,8 @@ A reference borrower **Meena (MSME-00001)** is injected exactly from `configs/pe
 
 Observable signals are noisy functions of latents. True capacity is **independent of gender given features** — the only channel from protected attributes to outcomes is through bureau coverage (thin-file mechanism).
 
+All latent variables are stored exclusively in `data/oracle.parquet` and **never exposed to any model or UI** (test-enforced by `tests/test_leakage.py::test_oracle_columns_not_in_model_features`).
+
 ## Default mechanism (12-month horizon)
 
 Monthly hazard from two channels:
@@ -43,8 +45,12 @@ This means kappa=high produces more timing-driven defaults; kappa=low produces m
 
 ### Calibration
 
-- TODO(verify): Default rate target of ~8% (12-month horizon) is anchored to RBI Financial Stability Report (Jun 2024) MSME NPA ratio ~5-8%. This is an illustrative parameter under our documented assumptions.
-- Realised default rates across the 3×3 grid range from ~8-10% in smoke mode.
+| Figure | Source / Status |
+|---|---|
+| Default rate target ~8% (12-month horizon) | TODO(verify): RBI Financial Stability Report (Jun 2024) MSME NPA ratio ~5-8%; illustrative parameter |
+| Realised default rate (smoke, medium kappa) | **verified** — `generator.default_rate_12m` = 0.088–0.089 measured in smoke runs |
+| Timing share of defaults ~62% (medium kappa) | **verified** — `generator.timing_share_of_defaults` = 0.616 |
+| Realised default rates across 3×3 grid | **verified** — range ~8–10% in smoke mode |
 
 ## Bias mechanism (plausible, not cartoonish)
 
@@ -59,12 +65,28 @@ The `bias_strength` parameter (weak=0.5, medium=1.0, strong=1.5) scales the cove
 
 Overall thin-file share is calibrated to 30-40%.
 
+| Figure | Source / Status |
+|---|---|
+| Overall thin-file share (smoke, medium bias) ~34.7% | **verified** — `generator.thin_file_share_total` = 0.347 |
+| Women-led thin-file share ~39.0% | **verified** — `generator.thin_file_share_female` = 0.390 |
+| Male-led thin-file share ~31.4% | **verified** — `generator.thin_file_share_male` = 0.314 |
+| Rural thin-file share ~40.6% | **verified** — `generator.thin_file_share_rural` = 0.406 |
+| Metro thin-file share ~27.3% | **verified** — `generator.thin_file_share_metro` = 0.273 |
+| Women-led legacy approval rate ~61.7% vs male ~62.3% | **verified** — `legacy_policy.female_approval_rate` = 0.617, `legacy_policy.male_approval_rate` = 0.623 |
+| Rural legacy approval rate ~61.0% vs metro ~63.0% | **verified** — `legacy_policy.rural_approval_rate` = 0.610, `legacy_policy.metro_approval_rate` = 0.630 |
+
 ## Legacy policy (stochastic)
 
 Legacy lender score = 0.6 × normalised_bureau + 0.4 × collateral_value_ratio + N(0, 0.15).
 Approve if score > 35th-percentile cutoff, **plus 5-10% manual overrides/exceptions** (some below-cutoff firms approved, some above-cutoff firms rejected). This creates overlap so reject inference is identifiable (Blueprint L3).
 
 Outcomes are observed only for approved firms.
+
+| Figure | Source / Status |
+|---|---|
+| Overall approval rate ~61.8% | **verified** — `legacy_policy.approval_rate` = 0.618 |
+| Override share ~8.4% | **verified** — `legacy_policy.override_share` = 0.084 |
+| Below-cutoff approvals (n=52) | **verified** — `legacy_policy.n_approved_below_cutoff` = 52 |
 
 ## Reject inference (Phase 2)
 
@@ -81,6 +103,15 @@ Outcomes are observed only for approved firms.
 
 **Scoreboard** evaluates all three plus the legacy policy on the OOT test months, using oracle outcomes for ALL firms (including rejected ones whose outcomes are never observable in production).
 
+**Calibration set disjoint from test**: The IsotonicRegression calibrator is fitted on a held-out 20% slice of the **train** data only (months 1-24). The OOT test set (months 25-36) is never seen during calibration. This is test-enforced by `tests/test_leakage.py::test_calibration_set_disjoint_from_test`.
+
+| Figure | Source / Status |
+|---|---|
+| Extra approvals at equal loss (medium/medium, smoke) +73 | **verified** — `models.extra_approvals_at_equal_loss` = 73 |
+| Legacy OOT loss rate ~7.5% | **verified** — `models.legacy_loss_rate` = 0.075 |
+| AUC approved-only OOT ~0.553 | **verified** — `models.auc_approved_only_oot` = 0.553 |
+| AUC inferred OOT ~0.566 | **verified** — `models.auc_inferred_oot` = 0.566 |
+| AUC oracle OOT ~0.583 | **verified** — `models.auc_oracle_oot` = 0.583 |
 
 ## Sensitivity grid (3×3 = 9 configurations)
 
@@ -92,10 +123,19 @@ Outcomes are observed only for approved firms.
 
 All 9 configs generate deterministically (seed=42) in both full (20k) and smoke (2k) modes.
 
+| Figure | Source / Status |
+|---|---|
+| Lift direction holds in all 9 cells | **verified** — `sensitivity_grid.direction_holds` = all true |
+| Smallest lift: kappa=low/bias=weak, +24 extra approvals | **verified** — `sensitivity_grid.cells[6].lift` = 24 |
+| Largest lift: kappa=high/bias=strong, +208 extra approvals | **verified** — `sensitivity_grid.cells[2].lift` = 208 |
+| Thin-file AUC lift mixed (positive in 4/9 cells) | **verified** — `sensitivity_grid.thin_file_auc_lift` varies per cell |
+
 ## Out-of-time split
 
-- Train: months 1-24
+- Train: months 1-24 (origin month column: `application_month`)
 - Test: months 25-36
+- Split enforced via `oot_train_end` / `oot_test_start` columns in `borrowers.parquet`
+- Disjointness test-enforced by `tests/test_leakage.py::test_oot_train_month_cutoff`
 
 ## Parameters and their sources
 
@@ -118,3 +158,4 @@ All 9 configs generate deterministically (seed=42) in both full (20k) and smoke 
 5. **Panel signals have perfect alignment.** Real alt-data has missing months, reporting lags, and cross-source inconsistencies that are not modelled here.
 6. **No correlation structure.** Firm-to-firm correlations (supply chain, geographic, sectoral) are not modelled in the generator. The stress module (M3) adds these downstream.
 7. **Conclusions should be interpreted for direction and relative size** within the context of the assumed parameters.
+8. **AUC signal is low (~0.54-0.61).** This reflects the difficulty of the synthetic task, where true capacity is the ground truth but models only observe noisy signals.

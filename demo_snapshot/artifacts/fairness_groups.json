@@ -1,0 +1,126 @@
+{
+  "policy": {
+    "mitigation": "none"
+  },
+  "by_group": {
+    "women_led": {
+      "n": 223,
+      "approval_rate": 0.7713,
+      "tpr": 0.7596,
+      "ece": 0.0535
+    },
+    "not_women_led": {
+      "n": 444,
+      "approval_rate": 0.7725,
+      "tpr": 0.7742,
+      "ece": 0.0425
+    },
+    "rural": {
+      "n": 226,
+      "approval_rate": 0.7611,
+      "tpr": 0.7621,
+      "ece": 0.0414
+    },
+    "not_rural": {
+      "n": 441,
+      "approval_rate": 0.7778,
+      "tpr": 0.7728,
+      "ece": 0.0487
+    },
+    "new_to_credit": {
+      "n": 237,
+      "approval_rate": 0.7553,
+      "tpr": 0.7626,
+      "ece": 0.0234
+    },
+    "not_new_to_credit": {
+      "n": 430,
+      "approval_rate": 0.7814,
+      "tpr": 0.773,
+      "ece": 0.0588
+    }
+  },
+  "adverse_impact_ratio": {
+    "women_led": 0.9984,
+    "rural": 0.9785,
+    "new_to_credit": 0.9666
+  },
+  "tpr_gap": {
+    "women_led": -0.0146,
+    "rural": -0.0107,
+    "new_to_credit": -0.0104
+  },
+  "intersectional": [
+    {
+      "group": "women_led x rural",
+      "n": 69,
+      "approval_rate": 0.7681,
+      "ci_low": 0.6808,
+      "ci_high": 0.8551,
+      "small_n": true
+    },
+    {
+      "group": "women_led x new_to_credit",
+      "n": 89,
+      "approval_rate": 0.7978,
+      "ci_low": 0.7191,
+      "ci_high": 0.8764,
+      "small_n": true
+    }
+  ],
+  "recourse_equity": {
+    "gender_equity": {
+      "group_column": "owner_gender",
+      "by_group": {
+        "female": {
+          "n": 30,
+          "median_cost": 14.07,
+          "median_months": 18.9,
+          "approval_rate": 1.0
+        },
+        "male": {
+          "n": 30,
+          "median_cost": 23.75,
+          "median_months": 20.0,
+          "approval_rate": 1.0
+        },
+        "other": {
+          "n": 30,
+          "median_cost": 8.0,
+          "median_months": 15.0,
+          "approval_rate": 1.0
+        }
+      },
+      "_note": "Under documented assumptions: synthetic data, illustrative cost parameters."
+    },
+    "location_equity": {
+      "group_column": "location_class",
+      "by_group": {
+        "rural": {
+          "n": 30,
+          "median_cost": 22.98,
+          "median_months": 20.0,
+          "approval_rate": 1.0
+        },
+        "urban": {
+          "n": 30,
+          "median_cost": 14.15,
+          "median_months": 20.0,
+          "approval_rate": 1.0
+        },
+        "metro": {
+          "n": 30,
+          "median_cost": 8.0,
+          "median_months": 15.0,
+          "approval_rate": 1.0
+        }
+      },
+      "_note": "Under documented assumptions: synthetic data, illustrative cost parameters."
+    }
+  },
+  "proxy_audit_summary": {
+    "auc": 0.5049,
+    "accuracy": 0.665,
+    "top_proxy": "gstr1_3b_mismatch"
+  }
+}
