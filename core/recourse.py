@@ -298,19 +298,20 @@ def recourse(borrower: Borrower, levers: list[str] | None = None) -> RecourseRes
 # Recourse equity helper (Blueprint §5.4 step 5)
 # ---------------------------------------------------------------------------
 
-def recourse_equity(group: str = "owner_gender") -> dict[str, Any]:
+def recourse_equity(group: str = "owner_gender", max_per_group: int = 30) -> dict[str, Any]:
     """Median cost-to-approve by group for fairness analysis.
 
-    Loads all borrowers, runs recourse for each that starts above the approval
-    threshold, and computes median total cost by group.
+    Loads all borrowers, runs recourse for rejected borrowers that start above the
+    approval threshold, and computes median total cost by group.
 
     Args:
         group: column name to group by (default: 'owner_gender').
                Also supports 'location_class'.
+        max_per_group: max rejected borrowers to evaluate per group (default: 30).
 
     Returns:
         Dict with keys: group_column, by_group (dict of group -> {n, median_cost,
-        median_months}), _note.
+        median_months, approval_rate}), _note.
 
     Example:
         eq = recourse_equity("owner_gender")
@@ -326,28 +327,37 @@ def recourse_equity(group: str = "owner_gender") -> dict[str, Any]:
         return {"group_column": group, "by_group": {},
                 "_note": f"Column '{group}' not found in borrowers."}
 
-    results: list[dict[str, Any]] = []
-    for _, row in df.iterrows():
-        bid = str(row["id"])
-        try:
-            s = score(bid)
-        except Exception:
-            continue
-        if s["pd"] < APPROVAL_PD_THRESHOLD:
-            continue  # already approved, no recourse needed
+    from core.models import score_batch
+    scored = score_batch(df)
+    rejected_mask = scored["pd"] >= APPROVAL_PD_THRESHOLD
+    rejected_df = df[rejected_mask].copy()
 
-        r = recourse(bid)
-        results.append({
-            "id": bid,
-            "group": str(row.get(group, "unknown")),
-            "cost": r["cost"],
-            "months": r["months"],
-            "new_pd": r["new_pd"],
-            "approved": r["new_pd"] < APPROVAL_PD_THRESHOLD,
-        })
+    priority_order = ["female", "male", "rural", "urban", "semi-urban"]
+    raw_uniques = list(df[group].dropna().unique())
+    ordered_groups = [g for g in priority_order if g in raw_uniques] + [
+        g for g in raw_uniques if g not in priority_order
+    ]
+
+    results: list[dict[str, Any]] = []
+    for grp_val in ordered_groups:
+        sub_df = rejected_df[rejected_df[group] == grp_val].head(max_per_group)
+        for _, row in sub_df.iterrows():
+            row_dict = row.to_dict()
+            try:
+                r = recourse(row_dict)
+                results.append({
+                    "id": str(row["id"]),
+                    "group": str(grp_val),
+                    "cost": r["cost"],
+                    "months": r["months"],
+                    "new_pd": r["new_pd"],
+                    "approved": r["new_pd"] < APPROVAL_PD_THRESHOLD,
+                })
+            except Exception:
+                continue
 
     by_group: dict[str, dict[str, Any]] = {}
-    for grp_val in df[group].dropna().unique():
+    for grp_val in ordered_groups:
         grp_results = [r for r in results if r["group"] == str(grp_val)]
         if not grp_results:
             continue
@@ -355,11 +365,11 @@ def recourse_equity(group: str = "owner_gender") -> dict[str, Any]:
         months_list = [r["months"] for r in grp_results]
         by_group[str(grp_val)] = {
             "n": len(grp_results),
-            "median_cost": round(float(np.median(costs)), 2),
-            "median_months": round(float(np.median(months_list)), 1),
+            "median_cost": round(float(np.median(costs)), 2) if costs else 0.0,
+            "median_months": round(float(np.median(months_list)), 1) if months_list else 0.0,
             "approval_rate": round(
                 sum(1 for r in grp_results if r["approved"]) / len(grp_results), 4
-            ),
+            ) if grp_results else 0.0,
         }
 
     return {

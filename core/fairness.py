@@ -415,7 +415,7 @@ def frontier_sweep(
     Returns list of dicts, each with fairness metrics and profit.
     """
     if strengths is None:
-        strengths = [0.0, 0.5, 1.0]
+        strengths = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
 
     points = []
     for s in strengths:
@@ -586,8 +586,8 @@ def build_artifacts(smoke: bool = False) -> None:
     out_dir = ARTIFACTS
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # 2. Frontier sweep
-    frontier = frontier_sweep(strengths=[0.0, 0.5, 1.0])
+    # 2. Frontier sweep (6 points)
+    frontier = frontier_sweep(strengths=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
 
     frontier_path = out_dir / "frontier.json"
     frontier_path.write_text(json.dumps(frontier, indent=2, default=str), encoding="utf-8")
