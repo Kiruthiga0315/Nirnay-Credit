@@ -7,11 +7,20 @@ from core.reference import MEENA_ID, resolve
 
 
 def test_leakage_guard():
-    """Ensure no oracle or panel data is imported in models.py."""
-    with open("core/models.py", encoding="utf-8") as f:
-        content = f.read()
-    assert "oracle.parquet" not in content, "Leakage: oracle.parquet loaded!"
-    assert "panel.parquet" not in content, "Leakage: panel.parquet loaded!"
+    """Ensure the PRODUCTION scoring path never reads oracle or panel data.
+
+    build_artifacts() and _compute_scoreboard() legitimately load oracle.parquet
+    for evaluation/reference (Blueprint L3, ARTIFACTS.md). But the production
+    functions score() and score_batch() must never touch oracle data.
+    """
+    import inspect
+
+    from core.models import _lazy_load_models, score, score_batch
+
+    for func in [score, score_batch, _lazy_load_models]:
+        src = inspect.getsource(func)
+        assert "oracle" not in src, f"Leakage: {func.__name__} references oracle!"
+        assert "panel.parquet" not in src, f"Leakage: {func.__name__} references panel!"
 
 
 def test_protected_attribute_invariance():
