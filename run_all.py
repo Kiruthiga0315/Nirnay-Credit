@@ -67,6 +67,10 @@ def main() -> int:
             print(f"FAIL {name:14s} ({owner}) {e!r}")
             if not a.keep_going:
                 break
+    # Remove stale merged file so load_metrics() reads from metrics/*.json
+    stale = ARTIFACTS / "metrics.json"
+    if stale.exists():
+        stale.unlink()
     merged = load_metrics()
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
     (ARTIFACTS / "metrics.json").write_text(json.dumps(merged, indent=2), encoding="utf-8")
