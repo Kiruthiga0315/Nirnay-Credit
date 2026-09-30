@@ -286,11 +286,12 @@ def _load_or_train_hazard_model() -> lgb.LGBMClassifier:
     return clf
 
 
-def watchlist(month: int = 25) -> list[WatchRow]:
+def watchlist(month: int = 25, limit: int | None = 10) -> list[WatchRow]:
     """Ranked borrowers by monthly default hazard with suggested action.
 
     Args:
         month: Calendar month in evaluation window (typically 25-36).
+        limit: Optional maximum number of top-hazard borrowers to return (default 10).
 
     Returns:
         List of WatchRow TypedDicts sorted by hazard descending (highest hazard = rank 1).
@@ -318,11 +319,14 @@ def watchlist(month: int = 25) -> list[WatchRow]:
     hazards = clf.predict_proba(X)[:, 1]
     month_df["hazard"] = hazards
 
-    # Determine 90th percentile threshold for top decile actions
+    # Determine 90th percentile threshold for top decile actions across active cohort
     top_decile_cutoff = float(month_df["hazard"].quantile(0.90))
 
     # Sort descending by hazard
     month_df = month_df.sort_values("hazard", ascending=False).reset_index(drop=True)
+
+    if limit is not None and limit > 0:
+        month_df = month_df.iloc[:limit]
 
     rows: list[WatchRow] = []
     for rank_idx, (_, row) in enumerate(month_df.iterrows(), start=1):
