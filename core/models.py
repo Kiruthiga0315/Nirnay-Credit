@@ -57,7 +57,7 @@ class WoEBinning:
             if X[col].dtype == object or isinstance(X[col].dtype, pd.CategoricalDtype):
                 # Categorical
                 self.bin_edges[col] = "categorical"
-                grouped = y.groupby(X[col].fillna("MISSING"))
+                grouped = y.groupby(X[col].fillna("MISSING"), observed=False)
             else:
                 # Continuous
                 edges = np.unique(np.nanquantile(X[col], np.linspace(0, 1, self.bins + 1)))
@@ -69,7 +69,7 @@ class WoEBinning:
                 binned = pd.cut(X[col], bins=edges, include_lowest=True, duplicates='drop')
                 binned = binned.cat.add_categories(["MISSING"])
                 binned = binned.fillna("MISSING")
-                grouped = y.groupby(binned)
+                grouped = y.groupby(binned, observed=False)
 
             events = grouped.sum()
             non_events = grouped.count() - events
@@ -814,3 +814,17 @@ def score_batch(ids_or_df) -> pd.DataFrame:
     if isinstance(ids_or_df, list) and len(ids_or_df) > 0 and isinstance(ids_or_df[0], dict):
         return res.to_dict(orient="records")
     return res
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="M1 Credit Risk Models & Sensitivity Grid")
+    parser.add_argument("--grid", action="store_true", help="Run 3x3 sensitivity grid")
+    parser.add_argument("--smoke", action="store_true", default=True, help="Use smoke dataset size")
+    args = parser.parse_args()
+
+    if args.grid:
+        run_grid(smoke=args.smoke)
+    else:
+        build_artifacts(smoke=args.smoke)
+
