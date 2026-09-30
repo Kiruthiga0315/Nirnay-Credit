@@ -1,0 +1,24 @@
+# generated (rebuild with: python run_all.py) -- NEVER commit
+data/*
+models/*
+artifacts/*
+!data/.gitkeep
+!models/.gitkeep
+!artifacts/.gitkeep
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.ipynb
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# streamlit
+.streamlit/secrets.toml

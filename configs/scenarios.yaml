@@ -1,0 +1,34 @@
+# Owner: M3. ALL numbers are ILLUSTRATIVE RANGES. Before the deck: verify against a public source,
+# cite it in docs/claims/m3.md, or keep the "illustrative" label on the slide.
+version: "0.1"
+lgd_default: 0.45   # placeholder; editable in UI; state source in docs/ASSUMPTIONS.md
+horizon_months: 12
+monte_carlo_runs: 2000
+scenarios:
+  demonetisation_style:
+    label: "Demonetisation-style cash squeeze"
+    inspiration: "Nov 2016"
+    shocks: {revenue_change: [-0.30, -0.10], receivable_days_delta: [10, 30], duration_months: 3}
+    sector_sensitivity: {retail_trading: 1.3, textile: 1.2, food_processing: 1.1, logistics: 1.0, services: 0.9, auto_components: 0.9}
+  gst_rollout_style:
+    label: "GST-rollout compliance shock"
+    inspiration: "Jul 2017"
+    shocks: {gst_filing_delay_days_delta: [5, 20], gstr1_3b_mismatch_delta: [0.05, 0.20], revenue_change: [-0.10, -0.02], duration_months: 4}
+    sector_sensitivity: {textile: 1.3, retail_trading: 1.2, auto_components: 1.0, food_processing: 1.0, logistics: 0.9, services: 0.9}
+  covid_style:
+    label: "COVID-style demand collapse"
+    inspiration: "Mar 2020"
+    shocks: {revenue_change: [-0.60, -0.30], receivable_days_delta: [15, 45], duration_months: 3}
+    sector_sensitivity: {logistics: 1.3, services: 1.3, retail_trading: 1.2, textile: 1.1, auto_components: 1.0, food_processing: 0.8}
+  rate_hike_2022_23_style:
+    label: "2022-23-style rate-hike cycle"
+    inspiration: "2022-23"
+    shocks: {cost_of_debt_bps_delta: [150, 250], revenue_change: [-0.05, 0.0], duration_months: 12}
+    sector_sensitivity: {auto_components: 1.1, retail_trading: 1.1, textile: 1.0, logistics: 1.0, food_processing: 1.0, services: 0.9}
+  custom:
+    label: "Custom (sliders)"
+    shocks: {revenue_change: [-0.5, 0.0], receivable_days_delta: [0, 60], cost_of_debt_bps_delta: [0, 300], gst_filing_delay_days_delta: [0, 30], duration_months: 6}
+contagion:
+  edge_weight: "revenue share w_ij of supplier j sold to buyer i"
+  rule: "delta_receivable_days_j = sum_i w_ij * delay_i"
+  parameter_ranges: {pass_through: [0.2, 0.8], buyer_delay_days: [5, 45]}

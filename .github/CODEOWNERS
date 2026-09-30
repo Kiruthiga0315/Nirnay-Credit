@@ -1,0 +1,61 @@
+# Replace the handles, or run: python scripts/set_owners.py M1=@a M2=@b M3=@c M4=@d
+# M1 Data & Modelling
+/core/generator.py            @M1_HANDLE
+/core/legacy_policy.py        @M1_HANDLE
+/core/models.py               @M1_HANDLE
+/core/external.py             @M1_HANDLE
+/configs/generator/           @M1_HANDLE
+/configs/personas/            @M1_HANDLE
+/app/pages/7_Model_Cockpit.py @M1_HANDLE
+/docs/data_statement.md       @M1_HANDLE
+/docs/model_card.md           @M1_HANDLE
+/docs/claims/m1.md            @M1_HANDLE
+/docs/known_issues/m1.md      @M1_HANDLE
+# M2 Decision Science
+/core/features.py             @M2_HANDLE
+/core/explain.py              @M2_HANDLE
+/core/recourse.py             @M2_HANDLE
+/core/forecast.py             @M2_HANDLE
+/core/structuring.py          @M2_HANDLE
+/core/fairness.py             @M2_HANDLE
+/core/optimizer.py            @M2_HANDLE
+/configs/feature_spec.json    @M2_HANDLE
+/app/pages/4_Fairness_Studio.py @M2_HANDLE
+/docs/claims/m2.md            @M2_HANDLE
+/docs/known_issues/m2.md      @M2_HANDLE
+# M3 Risk Systems & Platform
+/core/stress.py               @M3_HANDLE
+/core/early_warning.py        @M3_HANDLE
+/core/trust.py                @M3_HANDLE
+/core/governance.py           @M3_HANDLE
+/configs/scenarios.yaml       @M3_HANDLE
+/run_all.py                   @M3_HANDLE
+/Makefile                     @M3_HANDLE
+/requirements*.txt            @M3_HANDLE
+/.github/                     @M3_HANDLE
+/scripts/                     @M3_HANDLE
+/app/pages/5_Stress_Contagion.py @M3_HANDLE
+/app/pages/6_Early_Warning.py @M3_HANDLE
+/app/pages/8_Governance.py    @M3_HANDLE
+/docs/claims/m3.md            @M3_HANDLE
+/docs/known_issues/m3.md      @M3_HANDLE
+/demo_snapshot/               @M3_HANDLE
+# M4 Product, UI & Story
+/core/documents.py            @M4_HANDLE
+/app/Home.py                  @M4_HANDLE
+/app/components/              @M4_HANDLE
+/app/pages/1_Portfolio.py     @M4_HANDLE
+/app/pages/2_Borrower_Decision.py @M4_HANDLE
+/app/pages/3_Borrower_Portal.py @M4_HANDLE
+/README.md                    @M4_HANDLE
+/docs/claims/README.md        @M4_HANDLE
+/docs/claims/m4.md            @M4_HANDLE
+/docs/known_issues/m4.md      @M4_HANDLE
+/docs/QA_PREP.md              @M4_HANDLE
+# FROZEN after Gate 1 (H3): everyone must approve
+/core/contracts.py            @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
+/core/reference.py            @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
+/core/paths.py                @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
+/core/__init__.py             @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
+/docs/CONTRACTS.md            @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE
+/docs/ARTIFACTS.md            @M1_HANDLE @M2_HANDLE @M3_HANDLE @M4_HANDLE

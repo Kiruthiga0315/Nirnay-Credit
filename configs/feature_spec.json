@@ -1,0 +1,427 @@
+{
+  "version": "0.1",
+  "owner": "M2",
+  "target": "default_12m",
+  "mutability_classes": {
+    "immutable": "cannot change; never offered as advice",
+    "verifiable": "borrower can change AND lender can verify -> allowed recourse lever",
+    "gameable": "easy to window-dress -> excluded from advice, watched by trust checks",
+    "derived": "computed from other features; recompute after any lever change"
+  },
+  "monotone_pd_convention": "+1: PD must not decrease when feature increases; -1: PD must not increase; 0: unconstrained",
+  "groups": {
+    "women_led": {
+      "column": "owner_gender",
+      "value": "female"
+    },
+    "rural": {
+      "column": "location_class",
+      "value": "rural"
+    },
+    "new_to_credit": {
+      "column": "bureau_score",
+      "value": null,
+      "note": "missing bureau score = thin file"
+    }
+  },
+  "recourse_levers_default": [
+    "receivable_days",
+    "gst_filing_regularity",
+    "cheque_bounces_6m",
+    "invoice_digitisation_share"
+  ],
+  "features": [
+    {
+      "name": "bureau_score",
+      "type": "float",
+      "unit": "score",
+      "mutability": "immutable",
+      "monotone_pd": -1,
+      "label": "Credit bureau score",
+      "reason_risk": "Bureau score is low or missing (thin credit file).",
+      "model_input": true,
+      "nullable": true,
+      "allowed_range": [
+        300,
+        900
+      ]
+    },
+    {
+      "name": "collateral_value_ratio",
+      "type": "float",
+      "unit": "ratio",
+      "mutability": "immutable",
+      "monotone_pd": -1,
+      "label": "Collateral cover",
+      "reason_risk": "Collateral cover is low relative to the loan.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        0,
+        2
+      ]
+    },
+    {
+      "name": "vintage_months",
+      "type": "int",
+      "unit": "months",
+      "mutability": "immutable",
+      "monotone_pd": -1,
+      "label": "Business age",
+      "reason_risk": "The business is relatively new.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        0,
+        600
+      ]
+    },
+    {
+      "name": "gst_filing_regularity",
+      "type": "float",
+      "unit": "share",
+      "mutability": "verifiable",
+      "monotone_pd": -1,
+      "label": "GST filing regularity",
+      "reason_risk": "GST returns were filed on time only {value:.0%} of the last 12 months.",
+      "model_input": true,
+      "nullable": false,
+      "advice": "File GST returns on time every month.",
+      "allowed_range": [
+        0,
+        1
+      ],
+      "step": 0.05
+    },
+    {
+      "name": "gst_filing_delay_days",
+      "type": "float",
+      "unit": "days",
+      "mutability": "verifiable",
+      "monotone_pd": 1,
+      "label": "GST filing delay",
+      "reason_risk": "GST returns are filed about {value:.0f} days late on average.",
+      "model_input": true,
+      "nullable": false,
+      "advice": "File GST returns before the due date.",
+      "allowed_range": [
+        0,
+        60
+      ],
+      "step": 1
+    },
+    {
+      "name": "gstr1_3b_mismatch",
+      "type": "float",
+      "unit": "ratio",
+      "mutability": "verifiable",
+      "monotone_pd": 1,
+      "label": "GSTR-1 vs 3B mismatch",
+      "reason_risk": "Sales reported in GSTR-1 and GSTR-3B differ by {value:.0%}.",
+      "model_input": true,
+      "nullable": false,
+      "advice": "Reconcile GSTR-1 and GSTR-3B before filing.",
+      "allowed_range": [
+        0,
+        1
+      ],
+      "step": 0.01
+    },
+    {
+      "name": "receivable_days",
+      "type": "float",
+      "unit": "days",
+      "mutability": "verifiable",
+      "monotone_pd": 1,
+      "label": "Receivable days",
+      "reason_risk": "Customers take about {value:.0f} days to pay, longer than similar firms.",
+      "model_input": true,
+      "nullable": false,
+      "advice": "Reduce receivable days through earlier invoicing and follow-up.",
+      "allowed_range": [
+        15,
+        150
+      ],
+      "step": 5
+    },
+    {
+      "name": "upi_inflow_3m_avg",
+      "type": "float",
+      "unit": "INR",
+      "mutability": "gameable",
+      "monotone_pd": -1,
+      "label": "Average monthly UPI inflow (3m)",
+      "reason_risk": "Recent digital inflows are low.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        0,
+        null
+      ]
+    },
+    {
+      "name": "avg_bank_balance_3m",
+      "type": "float",
+      "unit": "INR",
+      "mutability": "gameable",
+      "monotone_pd": -1,
+      "label": "Average bank balance (3m)",
+      "reason_risk": "Average bank balance is low.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        0,
+        null
+      ]
+    },
+    {
+      "name": "inflow_stability_cv",
+      "type": "float",
+      "unit": "ratio",
+      "mutability": "derived",
+      "monotone_pd": 1,
+      "label": "Inflow variability",
+      "reason_risk": "Monthly inflows swing widely (variability {value:.2f}).",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        0,
+        3
+      ],
+      "derived_from": [
+        "monthly_inflow"
+      ]
+    },
+    {
+      "name": "cheque_bounces_6m",
+      "type": "int",
+      "unit": "count",
+      "mutability": "verifiable",
+      "monotone_pd": 1,
+      "label": "Cheque bounces (6m)",
+      "reason_risk": "{value:.0f} cheque(s) bounced in the last 6 months.",
+      "model_input": true,
+      "nullable": false,
+      "advice": "Avoid cheque bounces by keeping a payment buffer.",
+      "allowed_range": [
+        0,
+        10
+      ],
+      "step": 1
+    },
+    {
+      "name": "utility_delay_days",
+      "type": "float",
+      "unit": "days",
+      "mutability": "verifiable",
+      "monotone_pd": 1,
+      "label": "Utility payment delay",
+      "reason_risk": "Utility bills are paid about {value:.0f} days late.",
+      "model_input": true,
+      "nullable": false,
+      "advice": "Pay utility bills before the due date.",
+      "allowed_range": [
+        0,
+        60
+      ],
+      "step": 1
+    },
+    {
+      "name": "invoice_digitisation_share",
+      "type": "float",
+      "unit": "share",
+      "mutability": "verifiable",
+      "monotone_pd": -1,
+      "label": "Digitised invoices",
+      "reason_risk": "Only {value:.0%} of invoices are digital and verifiable.",
+      "model_input": true,
+      "nullable": false,
+      "advice": "Move invoices to e-invoicing / digital records.",
+      "allowed_range": [
+        0,
+        1
+      ],
+      "step": 0.05
+    },
+    {
+      "name": "inventory_days",
+      "type": "float",
+      "unit": "days",
+      "mutability": "immutable",
+      "monotone_pd": 1,
+      "label": "Inventory days",
+      "reason_risk": "Inventory sits for long.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        0,
+        200
+      ]
+    },
+    {
+      "name": "payable_days",
+      "type": "float",
+      "unit": "days",
+      "mutability": "immutable",
+      "monotone_pd": -1,
+      "label": "Payable days",
+      "reason_risk": "Supplier credit period is short.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        0,
+        150
+      ]
+    },
+    {
+      "name": "cash_conversion_days",
+      "type": "float",
+      "unit": "days",
+      "mutability": "derived",
+      "monotone_pd": 1,
+      "label": "Cash conversion cycle",
+      "reason_risk": "Cash is tied up for about {value:.0f} days between paying suppliers and collecting.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        -50,
+        300
+      ],
+      "derived_from": [
+        "receivable_days",
+        "inventory_days",
+        "payable_days"
+      ]
+    },
+    {
+      "name": "supplier_concentration",
+      "type": "float",
+      "unit": "hhi",
+      "mutability": "immutable",
+      "monotone_pd": 1,
+      "label": "Supplier concentration",
+      "reason_risk": "Depends heavily on few suppliers.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "customer_concentration",
+      "type": "float",
+      "unit": "hhi",
+      "mutability": "immutable",
+      "monotone_pd": 1,
+      "label": "Customer concentration",
+      "reason_risk": "Depends heavily on few customers.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "revenue_growth_3m",
+      "type": "float",
+      "unit": "ratio",
+      "mutability": "derived",
+      "monotone_pd": -1,
+      "label": "Revenue growth (3m)",
+      "reason_risk": "Revenue is falling.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        -1,
+        2
+      ],
+      "derived_from": [
+        "monthly_revenue"
+      ]
+    },
+    {
+      "name": "sector",
+      "type": "cat",
+      "unit": null,
+      "mutability": "immutable",
+      "monotone_pd": 0,
+      "label": "Sector",
+      "reason_risk": "Sector carries higher risk.",
+      "model_input": true,
+      "nullable": false,
+      "categories": [
+        "textile",
+        "food_processing",
+        "auto_components",
+        "retail_trading",
+        "logistics",
+        "services"
+      ]
+    },
+    {
+      "name": "udyam_category",
+      "type": "cat",
+      "unit": null,
+      "mutability": "immutable",
+      "monotone_pd": 0,
+      "label": "Udyam category",
+      "reason_risk": "Enterprise size category.",
+      "model_input": true,
+      "nullable": false,
+      "categories": [
+        "micro",
+        "small",
+        "medium"
+      ]
+    },
+    {
+      "name": "requested_amount",
+      "type": "float",
+      "unit": "INR",
+      "mutability": "immutable",
+      "monotone_pd": 1,
+      "label": "Requested loan amount",
+      "reason_risk": "Requested amount is high relative to inflows.",
+      "model_input": true,
+      "nullable": false,
+      "allowed_range": [
+        200000,
+        2500000
+      ]
+    },
+    {
+      "name": "owner_gender",
+      "type": "cat",
+      "unit": null,
+      "mutability": "immutable",
+      "monotone_pd": 0,
+      "label": "Owner gender (protected)",
+      "reason_risk": "",
+      "model_input": false,
+      "nullable": false,
+      "categories": [
+        "female",
+        "male",
+        "other"
+      ]
+    },
+    {
+      "name": "location_class",
+      "type": "cat",
+      "unit": null,
+      "mutability": "immutable",
+      "monotone_pd": 0,
+      "label": "Location class (protected group)",
+      "reason_risk": "",
+      "model_input": false,
+      "nullable": false,
+      "categories": [
+        "metro",
+        "urban",
+        "rural"
+      ]
+    }
+  ]
+}
