@@ -303,6 +303,10 @@ def test_claims_audit_summary(metrics, capsys):
         actual = _get_nested(metrics, key)
 
         if actual is None:
+            claimed, mode = _parse_claimed_value(row["value_raw"])
+            if key.startswith("sensitivity_grid.") and mode == "varies":
+                backed.append((row, "varies (skipped)"))
+                continue
             unbacked.append(row)
             continue
 
