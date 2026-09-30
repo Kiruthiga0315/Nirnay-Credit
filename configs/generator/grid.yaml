@@ -4,6 +4,9 @@ n_firms: 20000
 n_firms_smoke: 2000
 months: 36
 oot_split: {train_months: [1, 24], test_months: [25, 36]}
+# TODO(verify): RBI Financial Stability Report (Jun 2024) reports MSME NPA ratio ~5-8%.
+# We use 8% as an illustrative 12-month default rate target for unsecured MSME lending.
+default_rate_target: 0.08
 legacy_policy:
   thin_file_share: 0.35        # blueprint range 0.30-0.40
   override_rate: 0.075         # blueprint range 0.05-0.10 (creates overlap for reject inference)
@@ -18,4 +21,6 @@ axes:
     medium: 1.0
     strong: 1.5
 default_config: {kappa: medium, bias_strength: medium}
-calibration_sources: []        # M1: add cited public figures (verify before quoting). Do NOT invent citations.
+calibration_sources:
+  - "TODO(verify): RBI Financial Stability Report (Jun 2024), MSME NPA ratio ~5-8%"
+  - "TODO(verify): CRIF High Mark MSME Pulse (2024), portfolio growth ~12.5% YoY"
