@@ -1,0 +1,127 @@
+{
+  "_comment": "OWNER: M4. F16 Story Mode script. Based on 36h Plan Section 8.1 pitch cut (~4 minutes). Every entry maps to a page the Streamlit app can navigate to. Page targets use the Streamlit page names as shown in the sidebar.",
+  "version": "1.0",
+  "total_duration_seconds": 240,
+  "slides": [
+    {
+      "id": 0,
+      "time_start": 0,
+      "time_end": 25,
+      "page": "Home",
+      "page_target": "Home",
+      "callout": "Credit gap: ₹25 lakh crore to ₹60 trillion – viable firms are invisible to lenders. Meet Meena, a women-led textile unit with strong cash flow but no bureau score.",
+      "beat": "Title / problem",
+      "preset_borrower": "MSME-00001",
+      "action": null
+    },
+    {
+      "id": 1,
+      "time_start": 25,
+      "time_end": 65,
+      "page": "2 Borrower Decision",
+      "page_target": "2_Borrower_Decision",
+      "callout": "Legacy system rejects Meena: thin file. Our cockpit gives her a calibrated probability of default, three plain reasons, and a data-confidence score.",
+      "beat": "Rejection vs. our decision",
+      "preset_borrower": "MSME-00001",
+      "action": "score"
+    },
+    {
+      "id": 2,
+      "time_start": 65,
+      "time_end": 105,
+      "page": "2 Borrower Decision",
+      "page_target": "2_Borrower_Decision",
+      "callout": "Wow #1: move the receivable-days slider. The decision flips live. Meena sees her route to approval and exactly how many months it takes.",
+      "beat": "Live slider – decision flips",
+      "preset_borrower": "MSME-00001",
+      "action": "whatif_slider"
+    },
+    {
+      "id": 3,
+      "time_start": 105,
+      "time_end": 130,
+      "page": "3 Borrower Portal",
+      "page_target": "3_Borrower_Portal",
+      "callout": "Wow #2: Meena's own screen. Plain language, no jargon. Download her letter in Tamil. Watch the 6-month journey curve cross the approval line.",
+      "beat": "Borrower portal – letter and journey",
+      "preset_borrower": "MSME-00001",
+      "action": "journey_chart"
+    },
+    {
+      "id": 4,
+      "time_start": 130,
+      "time_end": 165,
+      "page": "1 Portfolio",
+      "page_target": "1_Portfolio",
+      "callout": "Portfolio scoreboard at equal loss rate. Move the inclusion-floor slider: approved count changes, and you see the price of inclusion in ₹. Fairness has a measurable cost – and it is surprisingly small.",
+      "beat": "Optimizer sliders – price of inclusion",
+      "preset_borrower": null,
+      "action": "optimizer_sliders"
+    },
+    {
+      "id": 5,
+      "time_start": 165,
+      "time_end": 200,
+      "page": "5 Stress",
+      "page_target": "5_Stress",
+      "callout": "Wow #3: click 'Demonetisation-style shock'. Contagion ripples through the supplier graph. Expected loss rises; the mitigation lever cuts it back.",
+      "beat": "Stress shock replay",
+      "preset_borrower": null,
+      "action": "stress_shock"
+    },
+    {
+      "id": 6,
+      "time_start": 200,
+      "time_end": 220,
+      "page": "6 Early Warning",
+      "page_target": "6_Early_Warning",
+      "callout": "After disbursal we flag trouble months before it becomes a default. Median lead time is shown on the watchlist.",
+      "beat": "Early warning lead time",
+      "preset_borrower": null,
+      "action": null
+    },
+    {
+      "id": 7,
+      "time_start": 220,
+      "time_end": 240,
+      "page": "8 Governance",
+      "page_target": "8_Governance",
+      "callout": "FREE-AI map, decision ledger, gaming toggle (10 s), honest limits. We did not build a better score – we built a decision that a borrower, an officer and a regulator can each trust.",
+      "beat": "Governance + close",
+      "preset_borrower": null,
+      "action": null
+    }
+  ],
+  "guided_tour": [
+    {
+      "step": 1,
+      "page": "Home",
+      "page_target": "Home",
+      "tip": "Start here. See Meena's profile and the system-status badge. All results come from precomputed artifacts – no live training."
+    },
+    {
+      "step": 2,
+      "page": "2 Borrower Decision",
+      "page_target": "2_Borrower_Decision",
+      "tip": "Select Meena (MSME-00001). Note the PD gauge, three reasons and the recourse card. Move a lever slider to see the decision flip."
+    },
+    {
+      "step": 3,
+      "page": "3 Borrower Portal",
+      "page_target": "3_Borrower_Portal",
+      "tip": "This is what Meena sees: plain language, her journey curve, and a multilingual letter download."
+    },
+    {
+      "step": 4,
+      "page": "1 Portfolio",
+      "page_target": "1_Portfolio",
+      "tip": "Move the inclusion-floor slider and watch the approved count and the price of inclusion in ₹ change in real time."
+    },
+    {
+      "step": 5,
+      "page": "8 Governance",
+      "page_target": "8_Governance",
+      "tip": "Every decision is logged. The FREE-AI map shows which obligations we map to. Use the gaming toggle to see robustness."
+    }
+  ]
+}

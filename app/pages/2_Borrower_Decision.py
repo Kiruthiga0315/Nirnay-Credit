@@ -31,6 +31,7 @@ import streamlit as st
 
 import core
 from app.components import ui
+from app.components.journey import SAFE_BORROWERS
 from core.reference import MEENA, MEENA_ID, TEST_BORROWER_IDS, resolve
 
 # ---------------------------------------------------------------------------
@@ -80,12 +81,27 @@ def _rescore_whatif(base: dict, overrides: dict) -> dict:
 # ---------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("---")
+    st.subheader("Quick Presets")
+    for _preset in SAFE_BORROWERS:
+        if st.button(
+            _preset["id"],
+            key=f"dec_preset_{_preset['id']}",
+            help=_preset["label"],
+            use_container_width=True,
+        ):
+            st.session_state["selected_borrower"] = _preset["id"]
+
+    st.markdown("---")
     st.subheader("Select Borrower")
+    _default_bid = st.session_state.get("selected_borrower", MEENA_ID)
+    if _default_bid not in TEST_BORROWER_IDS:
+        _default_bid = MEENA_ID
     bid = st.selectbox(
         "Borrower ID",
         TEST_BORROWER_IDS,
-        index=TEST_BORROWER_IDS.index(MEENA_ID),
+        index=TEST_BORROWER_IDS.index(_default_bid),
         help="20 test borrowers (MSME-00001 to MSME-00020). Meena is MSME-00001.",
+        key="decision_bid",
     )
     # Resolve the base feature dict for this borrower (used for what-if)
     b_base = resolve(bid)
