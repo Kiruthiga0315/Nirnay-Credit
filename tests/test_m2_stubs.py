@@ -118,7 +118,7 @@ def test_structure_schedule_under_p10(bid):
     target_dscr = r["target_dscr"]
     violations = [
         i for i in range(r["tenor_months"])
-        if r["schedule"][i] > r["p10_band"][i] / target_dscr + 0.5  # 0.5 INR float tolerance
+        if r["schedule"][i] > (r["p10_band"][i] / target_dscr) + 1e-6
     ]
     assert len(violations) <= 1, (
         f"{bid}: schedule exceeds P10/DSCR in {len(violations)} months: {violations}"

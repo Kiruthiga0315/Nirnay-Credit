@@ -5,6 +5,8 @@ Writes artifacts/structure/<borrower_id>.json via build_artifacts.
 """
 from __future__ import annotations
 
+import math
+
 from core.contracts import Borrower, StructureResult
 from core.reference import MEENA, resolve, stable_unit
 
@@ -62,8 +64,8 @@ def structure(borrower: Borrower, target_dscr: float = 1.25) -> StructureResult:
     # P10 band (12 months)
     p10 = [round(base_cash * s, 0) for s in seasonal]
 
-    # DSCR-matched schedule: instalment = p10[t] / target_dscr
-    schedule = [round(x / target_dscr, 0) for x in p10]
+    # DSCR-matched schedule: instalment <= p10[t] / target_dscr (floor ensures no ceiling breach)
+    schedule = [float(math.floor(x / target_dscr)) for x in p10]
 
     # Flat EMI = average of matched schedule (same total repayment, flat)
     flat_emi = round(sum(schedule) / len(schedule), 0)
