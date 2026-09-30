@@ -144,8 +144,9 @@ def build_artifacts(smoke: bool = False) -> None:
     X_train_lgb = X_train.copy()
     X_test_lgb = X_test.copy()
     for col in categorical_features:
-        X_train_lgb[col] = X_train_lgb[col].astype("category")
-        X_test_lgb[col] = X_test_lgb[col].astype("category")
+        cats = spec[col].get("categories", [])
+        X_train_lgb[col] = pd.Categorical(X_train_lgb[col], categories=cats)
+        X_test_lgb[col] = pd.Categorical(X_test_lgb[col], categories=cats)
         
     # Split train for calibration
     X_tr_fit, X_tr_cal, y_tr_fit, y_tr_cal = train_test_split(X_train_lgb, y_train, test_size=0.2, random_state=42)
@@ -293,7 +294,8 @@ def score(borrower: Borrower) -> ScoreResult:
     
     for f in features:
         if spec[f].get("type") == "cat":
-            df[f] = df[f].astype("category")
+            cats = spec[f].get("categories", [])
+            df[f] = pd.Categorical(df[f], categories=cats)
         else:
             df[f] = pd.to_numeric(df[f], errors="coerce")
             
@@ -345,6 +347,8 @@ def score_batch(ids_or_df) -> pd.DataFrame:
     """Batch score borrowers."""
     if isinstance(ids_or_df, pd.DataFrame):
         df = ids_or_df
+    elif isinstance(ids_or_df, list) and len(ids_or_df) > 0 and isinstance(ids_or_df[0], dict):
+        df = pd.DataFrame(ids_or_df)
     else:
         borrowers = pd.read_parquet(DATA / "borrowers.parquet")
         df = borrowers[borrowers["id"].isin(ids_or_df)].copy()
@@ -356,7 +360,8 @@ def score_batch(ids_or_df) -> pd.DataFrame:
     X = df[features].copy()
     for f in features:
         if spec[f].get("type") == "cat":
-            X[f] = X[f].astype("category")
+            cats = spec[f].get("categories", [])
+            X[f] = pd.Categorical(X[f], categories=cats)
         else:
             X[f] = pd.to_numeric(X[f], errors="coerce")
             
@@ -365,5 +370,8 @@ def score_batch(ids_or_df) -> pd.DataFrame:
     
     res = pd.DataFrame({"id": df["id"].values, "pd": pd_cal})
     res["pd_band"] = np.where(res["pd"] < 0.06, "low", np.where(res["pd"] < 0.12, "medium", "high"))
+    
+    if isinstance(ids_or_df, list) and len(ids_or_df) > 0 and isinstance(ids_or_df[0], dict):
+        return res.to_dict(orient="records")
     return res
 
