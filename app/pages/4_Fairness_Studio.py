@@ -11,6 +11,7 @@ import streamlit as st
 
 import core
 from app.components import ui
+from core import paths
 
 ui.page_header("Fairness Studio", "metrics, frontier, proxy audit", "Regulator / Risk Head")
 
@@ -94,3 +95,50 @@ if rep:
         fig_int.update_layout(title_text="Approval Rates with 95% CIs for Intersectional Groups", yaxis_title="Approval Rate")
         st.plotly_chart(fig_int, use_container_width=True)
         ui.caption("Measured under stated definitions. Small N warning flagged when n < 200.")
+
+
+st.divider()
+st.subheader("Cost of Fairness (Frontier)")
+st.warning("Simulation only: Group-aware thresholds and parameters are illustrative regulator-mandated policy simulations, and are never used as the default decision path.")
+frontier = paths.load_json("frontier.json")
+if frontier:
+    f_df = pd.DataFrame(frontier)
+    if "policy" in f_df.columns:
+        f_df["strength"] = f_df["policy"].apply(lambda x: x.get("strength", 0.0))
+        fig_front = px.line(f_df, x="air_women_led", y="expected_profit_inr", title="Profit vs. AIR Frontier", markers=True)
+        st.plotly_chart(fig_front, use_container_width=True)
+        
+        st.write("### Policy Simulator")
+        st.write("Explore the simulated cost of fairness. As we enforce higher fairness constraints, expected profit may decline.")
+        selected_strength = st.slider("Select Mitigation Strength", 0.0, 1.0, 0.0, 0.2)
+        sel_row = f_df[f_df["strength"] == selected_strength]
+        if not sel_row.empty:
+            profit = sel_row.iloc[0]['expected_profit_inr']
+            air = sel_row.iloc[0]['air_women_led']
+            st.metric("Simulated Expected Profit", ui.inr(profit))
+            st.metric("Simulated AIR (Women-led)", f"{air:.4f}")
+    ui.caption("Cost of Fairness: Increasing fairness mitigation may reduce expected profit.")
+
+st.divider()
+st.subheader("Proxy Audit")
+proxy_audit = paths.load_json("proxy_audit.json")
+if proxy_audit:
+    st.write(f"**Target**: `{proxy_audit.get('target', 'N/A')}`")
+    st.write(f"**AUC**: {proxy_audit.get('auc', 0.0):.4f} | **Accuracy**: {proxy_audit.get('accuracy', 0.0):.4f}")
+    st.write(f"*{proxy_audit.get('interpretation', '')}*")
+    
+    proxies = proxy_audit.get("top_proxies", [])
+    if proxies:
+        st.dataframe(pd.DataFrame(proxies), use_container_width=True)
+    ui.caption("Top features acting as proxies for protected attributes (under documented assumptions).")
+
+st.divider()
+st.subheader("Recourse Equity Gap")
+fairness_groups = paths.load_json("fairness_groups.json")
+if fairness_groups and "recourse_equity" in fairness_groups:
+    req = fairness_groups["recourse_equity"]
+    for eq_key, eq_data in req.items():
+        st.write(f"#### {eq_key.replace('_', ' ').title()}")
+        group_df = pd.DataFrame(eq_data["by_group"]).T
+        st.dataframe(group_df)
+        st.caption(eq_data.get("_note", ""))

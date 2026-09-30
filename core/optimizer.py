@@ -29,13 +29,16 @@ _RURAL_THRESHOLD = 0.45       # stable_unit < this -> rural firm
 _THIN_FILE_THRESHOLD = 0.30   # stable_unit < this -> new-to-credit
 
 
-def _borrower_features(bid: str) -> dict[str, float]:
+def _borrower_features(bid: str) -> dict[str, float | str]:
     """Deterministic per-borrower economic features."""
     pd = round(0.04 + 0.22 * stable_unit(bid, "opt_pd"), 4)
     ticket = round(_TICKET_LOW + (_TICKET_HIGH - _TICKET_LOW) * stable_unit(bid, "opt_ticket"), 0)
     is_women = stable_unit(bid, "opt_gender") < _WOMEN_LED_THRESHOLD
     is_rural = stable_unit(bid, "opt_rural") < _RURAL_THRESHOLD
     is_thin = stable_unit(bid, "opt_thin") < _THIN_FILE_THRESHOLD
+
+    sectors = ["retail", "services", "manufacturing"]
+    sector = sectors[int(stable_unit(bid, "opt_sector") * len(sectors))]
 
     el = round(pd * _LGD * ticket, 2)
     margin = round(ticket * _MARGIN_RATE, 2)
@@ -44,6 +47,7 @@ def _borrower_features(bid: str) -> dict[str, float]:
     return {
         "pd": pd, "ticket": ticket, "el": el, "net": net,
         "is_women": float(is_women), "is_rural": float(is_rural), "is_thin": float(is_thin),
+        "sector": sector,
     }
 
 
@@ -56,7 +60,7 @@ def optimize(policy_params: dict[str, Any] | None = None) -> OptimizeResult:
         sector_cap:       float [0,1] — max share for any single sector (default 0.40)
         inclusion_floor:  float [0,1] — min approval share for each protected group (default 0.30)
 
-    All numbers are under documented assumptions (stub). model_version='stub-...'
+    All numbers are under documented assumptions (stub).
 
     Example:
         r = optimize({"budget": 15_000_000, "inclusion_floor": 0.40})
@@ -70,73 +74,120 @@ def optimize(policy_params: dict[str, Any] | None = None) -> OptimizeResult:
     Returns:
         OptimizeResult with approved_ids, expected_profit, expected_loss, exposure, fairness_gap.
     """
+    import numpy as np
+    from scipy.optimize import linprog
+
     p = policy_params or {}
     budget = float(p.get("budget", 20_000_000))
     loss_cap = float(p.get("loss_cap", 1_500_000))
+    sector_cap = float(p.get("sector_cap", 0.40))
     inclusion_floor = float(p.get("inclusion_floor", 0.30))
 
     # Compute per-borrower features for all test borrowers
     all_ids = TEST_BORROWER_IDS
     features = {bid: _borrower_features(bid) for bid in all_ids}
 
-    # Greedy LP relaxation: sort by net profit descending, add while within constraints
-    # Only consider borrowers with positive net (EL + opex < expected margin)
-    sorted_ids = [
-        bid for bid in sorted(all_ids, key=lambda bid: features[bid]["net"], reverse=True)
-        if features[bid]["net"] > 0
-    ]
+    # Prepare LP arrays
+    n = len(all_ids)
+    c = -np.array([features[bid]["net"] for bid in all_ids], dtype=float)
+    
+    A_ub = []
+    b_ub = []
 
+    # 1. Total exposure <= budget
+    A_ub.append([float(features[bid]["ticket"]) for bid in all_ids])
+    b_ub.append(budget)
+
+    # 2. Total EL <= loss cap
+    A_ub.append([float(features[bid]["el"]) for bid in all_ids])
+    b_ub.append(loss_cap)
+
+    # 3. Sector share <= cap (exposure basis)
+    # sum_{i in S} ticket_i * x_i <= sector_cap * sum_{i} ticket_i * x_i
+    unique_sectors = set(features[bid]["sector"] for bid in all_ids)
+    for s in unique_sectors:
+        row = []
+        for bid in all_ids:
+            in_s = 1.0 if features[bid]["sector"] == s else 0.0
+            row.append(float(features[bid]["ticket"]) * (in_s - sector_cap))
+        A_ub.append(row)
+        b_ub.append(0.0)
+
+    # 4. Inclusion floor (count basis)
+    # sum_{i in G} x_i >= inclusion_floor * sum_i x_i
+    for group_key in ("is_women", "is_rural", "is_thin"):
+        row = []
+        for bid in all_ids:
+            in_g = float(features[bid][group_key])
+            row.append(inclusion_floor - in_g)
+        A_ub.append(row)
+        b_ub.append(0.0)
+
+    bounds = [(0.0, 1.0)] * n
+    
+    res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method="highs")
+    
+    if res.success:
+        x = res.x
+    else:
+        # Fallback to greedy if LP is infeasible (e.g. constraints too tight)
+        x = np.zeros(n)
+        for i, bid in enumerate(all_ids):
+            if features[bid]["net"] > 0:
+                x[i] = 1.0
+
+    # Documented Rounding Strategy:
+    # 1. Select borrowers with LP assignment x_i >= 0.5 (or top fractional allocations).
+    # 2. Break ties by net profit.
+    # 3. Approve greedily sequentially while strictly enforcing budget and loss cap.
+    # 4. If no candidate has x_i >= 0.5, greedily approve the highest positive net borrower.
+    order = sorted(range(n), key=lambda i: (x[i] >= 0.5, x[i], features[all_ids[i]]["net"]), reverse=True)
+    
     approved: list[str] = []
     total_exposure = 0.0
     total_el = 0.0
-
-    for bid in sorted_ids:
+    
+    for i in order:
+        if x[i] < 0.5:
+            continue
+        bid = all_ids[i]
         f = features[bid]
-        if total_exposure + f["ticket"] > budget:
+        
+        if total_exposure + float(f["ticket"]) > budget:
             continue
-        if total_el + f["el"] > loss_cap:
+        if total_el + float(f["el"]) > loss_cap:
             continue
+            
         approved.append(bid)
-        total_exposure += f["ticket"]
-        total_el += f["el"]
+        total_exposure += float(f["ticket"])
+        total_el += float(f["el"])
 
-    # Check inclusion floor; if not met, swap in protected borrowers greedily
+    # Fallback to ensure at least one positive-net borrower if none passed the 0.5 LP threshold
+    if not approved:
+        pos_order = sorted(
+            [i for i in range(n) if features[all_ids[i]]["net"] > 0],
+            key=lambda i: features[all_ids[i]]["net"],
+            reverse=True,
+        )
+        for i in pos_order:
+            bid = all_ids[i]
+            f = features[bid]
+            if total_exposure + float(f["ticket"]) <= budget and total_el + float(f["el"]) <= loss_cap:
+                approved.append(bid)
+                total_exposure += float(f["ticket"])
+                total_el += float(f["el"])
+                break
+
     def _share(group_key: str) -> float:
         if not approved:
             return 0.0
-        return sum(features[bid][group_key] for bid in approved) / len(approved)
+        return sum(float(features[bid][group_key]) for bid in approved) / len(approved)
 
-    for group_key in ("is_women", "is_rural"):
-        while _share(group_key) < inclusion_floor:
-            # Find the highest-net non-approved protected borrower
-            candidate = next(
-                (bid for bid in sorted_ids
-                 if bid not in approved and features[bid][group_key] == 1.0),
-                None,
-            )
-            if candidate is None:
-                break  # cannot satisfy floor — document in known_issues
-            # Swap out the worst non-protected approved borrower to stay within budget
-            worst = min(
-                (bid for bid in approved if features[bid][group_key] == 0.0),
-                key=lambda bid: features[bid]["net"],
-                default=None,
-            )
-            if worst is not None:
-                approved.remove(worst)
-                total_exposure -= features[worst]["ticket"]
-                total_el -= features[worst]["el"]
-            approved.append(candidate)
-            total_exposure += features[candidate]["ticket"]
-            total_el += features[candidate]["el"]
-            break  # re-evaluate share next loop iteration
+    expected_profit = round(sum(float(features[bid]["net"]) for bid in approved), 2)
+    expected_loss = round(sum(float(features[bid]["el"]) for bid in approved), 2)
+    exposure = round(sum(float(features[bid]["ticket"]) for bid in approved), 2)
 
-    expected_profit = round(sum(features[bid]["net"] for bid in approved), 2)
-    expected_loss = round(sum(features[bid]["el"] for bid in approved), 2)
-    exposure = round(sum(features[bid]["ticket"] for bid in approved), 2)
-
-    # Fairness gap: approval share of protected vs overall
-    overall_rate = len(approved) / len(all_ids)
+    overall_rate = len(approved) / len(all_ids) if all_ids else 0.0
     women_rate = _share("is_women")
     rural_rate = _share("is_rural")
     fairness_gap = {
@@ -154,4 +205,31 @@ def optimize(policy_params: dict[str, Any] | None = None) -> OptimizeResult:
 
 
 def build_artifacts(smoke: bool = False) -> None:
-    print("[optimizer] STUB - M2 to implement")
+    """Precompute a grid of policies into artifacts so sliders are instant."""
+    from core.paths import write_metrics
+
+    # Define a grid of inclusion floors to compute the Price of Inclusion
+    floors = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5] if not smoke else [0.0, 0.3]
+    
+    results = []
+    base_profit = None
+    
+    for floor in floors:
+        params = {"inclusion_floor": floor}
+        res = optimize(params)
+        profit = res["expected_profit"]
+        
+        if floor == 0.0:
+            base_profit = profit
+            
+        cost_of_inclusion = base_profit - profit if base_profit is not None else 0.0
+        
+        results.append({
+            "inclusion_floor": floor,
+            "expected_profit": profit,
+            "cost_of_inclusion": max(0.0, cost_of_inclusion),
+            "approved_count": len(res["approved_ids"]),
+            "women_led_share": res["fairness_gap"]["women_led"] + (len(res["approved_ids"]) / len(TEST_BORROWER_IDS)),
+        })
+        
+    write_metrics("optimizer", {"frontier": results})
