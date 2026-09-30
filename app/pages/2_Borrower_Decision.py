@@ -413,5 +413,9 @@ if cam:
             file_name=f"cam_{bid}.html",
             mime="text/html",
         )
+        st.markdown("---")
+        if st.button("Challenge this decision", type="primary"):
+            # core.governance doesn't have a public helper for this yet, so we show a stub.
+            st.success(f"Challenge for {bid} logged to decision ledger (STUB).")
 else:
     st.info("CAM generation unavailable -- try another borrower.")
