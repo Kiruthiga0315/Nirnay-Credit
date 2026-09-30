@@ -7,12 +7,14 @@ detect stale advice when the model is retrained.
 Design (Blueprint §5.4, L4):
   - Grid search per lever (step increments), greedy selection by PD reduction per unit cost.
   - Recomputes derived features after every lever change via features.recompute_derived.
-  - Re-scores with the actual model (local tiny when M1's model is absent; labels accordingly).
+  - Re-scores with the actual model (challenger.pkl with pd.Categorical encoding).
   - Returns RecourseResult with max 4 actions; if no feasible path, returns closest path.
   - Stamps advice with model version so stale advice is detectable.
+  - recourse_equity(group) computes median cost-to-approve by group for fairness analysis.
 """
 from __future__ import annotations
 
+import json
 import pickle
 import warnings
 from typing import Any
@@ -23,7 +25,7 @@ import pandas as pd
 from core.contracts import Borrower, RecourseAction, RecourseResult
 from core.features import by_name, lever_config, load_spec, model_features, recompute_derived
 from core.models import APPROVAL_PD_THRESHOLD, MODEL_VERSION, score
-from core.paths import MODELS
+from core.paths import ARTIFACTS, DATA, MODELS, write_metrics
 from core.reference import MEENA, MEENA_ID, resolve
 
 warnings.filterwarnings("ignore", category=UserWarning, module="lightgbm")
@@ -33,32 +35,40 @@ _MAX_ACTIONS = 4
 
 
 # ---------------------------------------------------------------------------
-# Internal: model loading
+# Internal: model loading — uses M1's challenger with proper categorical encoding
 # ---------------------------------------------------------------------------
 
 def _load_scoring_model():
     """Load the best available scoring model.
 
     Priority: M1's challenger.pkl > local tiny model built in explain.py.
-    Always returns MODEL_VERSION as the version string so valid_until_model
-    is always the canonical model version the UI tracks.
+    Returns (model, feature_names, calibrator_or_None).
     """
     challenger_path = MODELS / "challenger.pkl"
+    calibrator_path = MODELS / "calibrator.pkl"
     if challenger_path.exists():
         with open(challenger_path, "rb") as f:
             bundle = pickle.load(f)
         model = bundle.get("model") if isinstance(bundle, dict) else bundle
         features = bundle.get("features", model_features()) if isinstance(bundle, dict) else model_features()
-        return model, features
+        calibrator = None
+        if calibrator_path.exists():
+            with open(calibrator_path, "rb") as f:
+                calibrator = pickle.load(f)
+        return model, features, calibrator
 
     # Fall back to local tiny model; still stamp with MODEL_VERSION
     from core.explain import _make_tiny_model
     model, features = _make_tiny_model()
-    return model, features
+    return model, features, None
 
 
-def _score_row(model, feature_names: list[str], row: dict[str, Any]) -> float:
-    """Score a single row with the given model; return P(default)."""
+def _score_row(model, feature_names: list[str], row: dict[str, Any],
+               calibrator=None) -> float:
+    """Score a single row with the given model; return P(default).
+
+    Uses pd.Categorical for cat columns matching M1's training pipeline.
+    """
     spec = by_name()
     vals = {name: row.get(name, np.nan) for name in feature_names}
     df = pd.DataFrame([vals])
@@ -71,6 +81,8 @@ def _score_row(model, feature_names: list[str], row: dict[str, Any]) -> float:
             df[f] = pd.to_numeric(df[f], errors="coerce")
 
     proba = model.predict_proba(df)[0][1]
+    if calibrator is not None:
+        proba = calibrator.predict(np.array([proba]))[0]
     return float(proba)
 
 
@@ -148,16 +160,16 @@ def recourse(borrower: Borrower, levers: list[str] | None = None) -> RecourseRes
     bf = _borrower_fields(b)
     bid = str(b.get("id", "unknown"))
 
-    spec = load_spec()
-    default_levers: list[str] = spec["recourse_levers_default"]
+    spec_data = load_spec()
+    default_levers: list[str] = spec_data["recourse_levers_default"]
     active_levers = levers if levers is not None else default_levers
 
     # Load model once
-    model, feature_names = _load_scoring_model()
+    model, feature_names, calibrator = _load_scoring_model()
 
     # Baseline PD from our internal model
     current_state = dict(bf)
-    current_pd = _score_row(model, feature_names, current_state)
+    current_pd = _score_row(model, feature_names, current_state, calibrator)
 
     # Canonical baseline PD from core.models.score() — used for the safety clamp
     canonical_pd = score(bid)["pd"] if bid != "unknown" else current_pd
@@ -182,7 +194,7 @@ def recourse(borrower: Borrower, levers: list[str] | None = None) -> RecourseRes
 
         for tgt in targets:
             trial = recompute_derived({**current_state, ln: tgt})
-            trial_pd = _score_row(model, feature_names, trial)
+            trial_pd = _score_row(model, feature_names, trial, calibrator)
             delta_pd = current_pd - trial_pd
             n_steps_used = abs(tgt - current_val) / float(cfg.get("step", 1.0))
             cost = cfg.get("cost_per_unit", 1.0) * n_steps_used
@@ -201,7 +213,7 @@ def recourse(borrower: Borrower, levers: list[str] | None = None) -> RecourseRes
 
         # PD after this single lever
         trial_state = recompute_derived({**current_state, ln: best_target})
-        trial_pd = _score_row(model, feature_names, trial_state)
+        trial_pd = _score_row(model, feature_names, trial_state, calibrator)
         delta_pd = current_pd - trial_pd
 
         lever_candidates.append({
@@ -239,7 +251,7 @@ def recourse(borrower: Borrower, levers: list[str] | None = None) -> RecourseRes
 
         working_state[ln] = best_target
         working_state = recompute_derived(working_state)
-        new_pd = _score_row(model, feature_names, working_state)
+        new_pd = _score_row(model, feature_names, working_state, calibrator)
 
         n_steps_used = abs(best_target - current_val) / float(cfg.get("step", 1.0))
         cost = round(cfg.get("cost_per_unit", 1.0) * n_steps_used, 2)
@@ -282,5 +294,101 @@ def recourse(borrower: Borrower, levers: list[str] | None = None) -> RecourseRes
     }
 
 
+# ---------------------------------------------------------------------------
+# Recourse equity helper (Blueprint §5.4 step 5)
+# ---------------------------------------------------------------------------
+
+def recourse_equity(group: str = "owner_gender") -> dict[str, Any]:
+    """Median cost-to-approve by group for fairness analysis.
+
+    Loads all borrowers, runs recourse for each that starts above the approval
+    threshold, and computes median total cost by group.
+
+    Args:
+        group: column name to group by (default: 'owner_gender').
+               Also supports 'location_class'.
+
+    Returns:
+        Dict with keys: group_column, by_group (dict of group -> {n, median_cost,
+        median_months}), _note.
+
+    Example:
+        eq = recourse_equity("owner_gender")
+        eq["by_group"]["female"]["median_cost"]  # median cost for women-led
+    """
+    borrowers_path = DATA / "borrowers.parquet"
+    if not borrowers_path.exists():
+        from core.generator import build_artifacts as _gen
+        _gen(smoke=True)
+
+    df = pd.read_parquet(borrowers_path)
+    if group not in df.columns:
+        return {"group_column": group, "by_group": {},
+                "_note": f"Column '{group}' not found in borrowers."}
+
+    results: list[dict[str, Any]] = []
+    for _, row in df.iterrows():
+        bid = str(row["id"])
+        try:
+            s = score(bid)
+        except Exception:
+            continue
+        if s["pd"] < APPROVAL_PD_THRESHOLD:
+            continue  # already approved, no recourse needed
+
+        r = recourse(bid)
+        results.append({
+            "id": bid,
+            "group": str(row.get(group, "unknown")),
+            "cost": r["cost"],
+            "months": r["months"],
+            "new_pd": r["new_pd"],
+            "approved": r["new_pd"] < APPROVAL_PD_THRESHOLD,
+        })
+
+    by_group: dict[str, dict[str, Any]] = {}
+    for grp_val in df[group].dropna().unique():
+        grp_results = [r for r in results if r["group"] == str(grp_val)]
+        if not grp_results:
+            continue
+        costs = [r["cost"] for r in grp_results]
+        months_list = [r["months"] for r in grp_results]
+        by_group[str(grp_val)] = {
+            "n": len(grp_results),
+            "median_cost": round(float(np.median(costs)), 2),
+            "median_months": round(float(np.median(months_list)), 1),
+            "approval_rate": round(
+                sum(1 for r in grp_results if r["approved"]) / len(grp_results), 4
+            ),
+        }
+
+    return {
+        "group_column": group,
+        "by_group": by_group,
+        "_note": "Under documented assumptions: synthetic data, illustrative cost parameters.",
+    }
+
+
+# ---------------------------------------------------------------------------
+# Build artifacts
+# ---------------------------------------------------------------------------
+
 def build_artifacts(smoke: bool = False) -> None:
-    print("[recourse] STUB - M2 to implement (artifacts written per-request)")
+    """Write recourse artifact for Meena and recourse metrics."""
+    r = recourse(MEENA_ID)
+    out_dir = ARTIFACTS / "recourse"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"{MEENA_ID}.json"
+    out_path.write_text(json.dumps(r, indent=2, default=str), encoding="utf-8")
+
+    write_metrics("recourse", {
+        "meena_new_pd": r["new_pd"],
+        "meena_cost": r["cost"],
+        "meena_months": r["months"],
+        "meena_n_actions": len(r["actions"]),
+        "approval_threshold": APPROVAL_PD_THRESHOLD,
+        "model_version": MODEL_VERSION,
+        "_note": "Under documented assumptions: decision aid, illustrative parameters.",
+    })
+    print(f"[recourse] {out_path.name} written. "
+          f"new_pd={r['new_pd']}, cost={r['cost']}, actions={len(r['actions'])}")
