@@ -1,9 +1,9 @@
 {
-  "total_audited_firms": 2000,
-  "clean_firms_count": 24,
-  "flagged_firms_count": 1976,
-  "clean_firms_share": 0.012,
-  "average_data_confidence": 70.23,
+  "total_audited_firms": 20000,
+  "clean_firms_count": 273,
+  "flagged_firms_count": 19727,
+  "clean_firms_share": 0.0137,
+  "average_data_confidence": 70.5,
   "flag_definitions": {
     "FLAG_INFLATED_TURNOVER": "GST reported turnover exceeds bank deposits by > 80% (possible circular billing)",
     "FLAG_UNDERREPORTED_GST": "GST reported turnover is less than 60% of bank deposits (possible unfiled revenue)",
@@ -20,14 +20,14 @@
   "flag_occurrences": {
     "FLAG_INFLATED_TURNOVER": 0,
     "FLAG_UNDERREPORTED_GST": 0,
-    "FLAG_GSTR_MISMATCH": 1695,
+    "FLAG_GSTR_MISMATCH": 17066,
     "FLAG_CASHFLOW_DIVERGENCE": 0,
-    "FLAG_CHRONIC_GST_DELAY": 1706,
-    "FLAG_ANOMALOUS_UPI": 34,
-    "FLAG_ARTIFICIAL_SMOOTHING": 32,
-    "FLAG_THIN_FILE": 693,
+    "FLAG_CHRONIC_GST_DELAY": 17004,
+    "FLAG_ANOMALOUS_UPI": 301,
+    "FLAG_ARTIFICIAL_SMOOTHING": 327,
+    "FLAG_THIN_FILE": 6820,
     "FLAG_CIRCULAR_UPI": 26,
-    "FLAG_WINDOW_DRESSING": 1,
+    "FLAG_WINDOW_DRESSING": 10,
     "FLAG_INVOICE_ROUND_TRIPPING": 0
   },
   "attacks_tested": 3

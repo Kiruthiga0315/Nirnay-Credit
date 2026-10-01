@@ -1,56 +1,56 @@
 {
   "model_version": "v2-reject-inference",
-  "n_test": 667,
-  "legacy_loss_rate": 0.07542579075425791,
-  "legacy_approval_rate": 0.616191904047976,
+  "n_test": 6666,
+  "legacy_loss_rate": 0.08246197718631179,
+  "legacy_approval_rate": 0.6312631263126313,
   "iso_loss": {
     "description": "Approvals at the loss rate the legacy policy achieved",
-    "target_loss_rate": 0.07542579075425791,
+    "target_loss_rate": 0.08246197718631179,
     "approvals": {
-      "legacy": 411,
-      "approved_only": 419,
-      "inferred": 484,
-      "oracle": 534
+      "legacy": 4208,
+      "approved_only": 6577,
+      "inferred": 6580,
+      "oracle": 6606
     }
   },
   "iso_approval": {
     "description": "Loss rate at the legacy approval count",
-    "target_n_approved": 411,
+    "target_n_approved": 4208,
     "loss_rates": {
-      "legacy": 0.07542579075425791,
-      "approved_only": 0.072992700729927,
-      "inferred": 0.0681265206812652,
-      "oracle": 0.072992700729927
+      "legacy": 0.08246197718631179,
+      "approved_only": 0.06107414448669202,
+      "inferred": 0.060836501901140684,
+      "oracle": 0.06131178707224334
     }
   },
-  "extra_approvals_at_equal_loss": 73,
+  "extra_approvals_at_equal_loss": 2372,
   "auc": {
-    "legacy": 0.5236146831891513,
-    "approved_only": 0.5532499415478138,
-    "inferred": 0.565685644143091,
-    "oracle": 0.583235913023147
+    "legacy": 0.4945303532824922,
+    "approved_only": 0.6283188450190478,
+    "inferred": 0.6337666331011917,
+    "oracle": 0.6235461806949227
   },
   "subgroups": {
     "thin_file": {
-      "n": 237,
-      "auc_approved_only": 0.5720446473871131,
-      "auc_inferred": 0.6418061897513951,
-      "auc_oracle": 0.56544901065449,
-      "legacy_approval_rate": 0.5358649789029536
+      "n": 2322,
+      "auc_approved_only": 0.6156867711141671,
+      "auc_inferred": 0.6185070429869556,
+      "auc_oracle": 0.6158820480168151,
+      "legacy_approval_rate": 0.5430663221360896
     },
     "women_led": {
-      "n": 223,
-      "auc_approved_only": 0.4387820512820513,
-      "auc_inferred": 0.427724358974359,
-      "auc_oracle": 0.4998397435897436,
-      "legacy_approval_rate": 0.6053811659192825
+      "n": 2204,
+      "auc_approved_only": 0.6120949772243848,
+      "auc_inferred": 0.624091061993682,
+      "auc_oracle": 0.6048045040328394,
+      "legacy_approval_rate": 0.6293103448275862
     },
     "rural": {
-      "n": 226,
-      "auc_approved_only": 0.6029126213592232,
-      "auc_inferred": 0.6114077669902913,
-      "auc_oracle": 0.6396844660194175,
-      "legacy_approval_rate": 0.6106194690265486
+      "n": 2264,
+      "auc_approved_only": 0.6353381344910871,
+      "auc_inferred": 0.64116601640803,
+      "auc_oracle": 0.6325256436582671,
+      "legacy_approval_rate": 0.622791519434629
     }
   },
   "expected_profit": {
@@ -58,10 +58,10 @@
     "margin": 0.1,
     "ticket": 500000,
     "values": {
-      "legacy": -200000.0,
-      "approved_only": 14425000.0,
-      "inferred": 14800000.0,
-      "oracle": 11025000.0
+      "legacy": 500000.0,
+      "approved_only": 136500000.0,
+      "inferred": 155200000.0,
+      "oracle": 150150000.0
     }
   }
 }

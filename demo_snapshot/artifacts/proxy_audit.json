@@ -1,27 +1,27 @@
 {
   "target": "owner_gender == female",
-  "accuracy": 0.665,
-  "auc": 0.5049,
+  "accuracy": 0.663,
+  "auc": 0.5384,
   "top_proxies": [
     {
-      "feature": "gstr1_3b_mismatch",
+      "feature": "bureau_score",
+      "importance": 29
+    },
+    {
+      "feature": "avg_bank_balance_3m",
+      "importance": 27
+    },
+    {
+      "feature": "payable_days",
       "importance": 23
     },
     {
-      "feature": "collateral_value_ratio",
+      "feature": "inventory_days",
       "importance": 23
     },
     {
-      "feature": "inflow_stability_cv",
-      "importance": 23
-    },
-    {
-      "feature": "cash_conversion_days",
+      "feature": "gst_filing_regularity",
       "importance": 22
-    },
-    {
-      "feature": "gst_filing_delay_days",
-      "importance": 19
     }
   ],
   "interpretation": "AUC close to 0.5 means model features carry little demographic signal. AUC above 0.7 means proxies leak \u2014 consider feature removal or regularisation.",

@@ -14,8 +14,11 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
+import os
 import sys
 import time
+
+os.environ["OMP_NUM_THREADS"] = "1"
 
 from core.paths import ARTIFACTS, load_metrics
 

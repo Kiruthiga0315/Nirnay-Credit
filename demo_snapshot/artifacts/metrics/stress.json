@@ -1,37 +1,37 @@
 {
   "demonetisation_style": {
-    "EL": 155508102.81,
-    "ES95": 332021535.53,
-    "EL_no_contagion": 140799008.95,
-    "ES95_no_contagion": 305480097.27,
-    "mitigation_saved_inr": 11820167.88
+    "EL": 1444132558.21,
+    "ES95": 3157611385.98,
+    "EL_no_contagion": 1326707156.75,
+    "ES95_no_contagion": 2943344552.93,
+    "mitigation_saved_inr": 114421660.0
   },
   "gst_rollout_style": {
-    "EL": 152068353.41,
-    "ES95": 325923897.39,
-    "EL_no_contagion": 143646545.5,
-    "ES95_no_contagion": 310818989.67,
-    "mitigation_saved_inr": 11243695.31
+    "EL": 1402613622.8,
+    "ES95": 3083173980.56,
+    "EL_no_contagion": 1323871028.6,
+    "ES95_no_contagion": 2938249099.91,
+    "mitigation_saved_inr": 106263431.65
   },
   "covid_style": {
-    "EL": 171636457.27,
-    "ES95": 360803722.76,
-    "EL_no_contagion": 152423264.3,
-    "ES95_no_contagion": 326545360.08,
-    "mitigation_saved_inr": 11594528.3
+    "EL": 1558072438.15,
+    "ES95": 3361165978.72,
+    "EL_no_contagion": 1412036380.45,
+    "ES95_no_contagion": 3100415208.63,
+    "mitigation_saved_inr": 150050646.55
   },
   "rate_hike_2022_23_style": {
-    "EL": 139126835.39,
-    "ES95": 302317586.83,
-    "EL_no_contagion": 129449764.78,
-    "ES95_no_contagion": 284517035.64,
-    "mitigation_saved_inr": 12732257.82
+    "EL": 1309208998.42,
+    "ES95": 2910552038.28,
+    "EL_no_contagion": 1219364846.46,
+    "ES95_no_contagion": 2739110679.29,
+    "mitigation_saved_inr": 85398240.76
   },
   "custom": {
-    "EL": 172096712.39,
-    "ES95": 361605891.61,
-    "EL_no_contagion": 150343296.86,
-    "ES95_no_contagion": 322734044.57,
-    "mitigation_saved_inr": 11250775.52
+    "EL": 1579778302.49,
+    "ES95": 3402649617.5,
+    "EL_no_contagion": 1412321316.93,
+    "ES95_no_contagion": 3103242910.84,
+    "mitigation_saved_inr": 150474641.85
   }
 }

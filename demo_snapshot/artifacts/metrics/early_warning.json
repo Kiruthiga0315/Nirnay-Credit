@@ -1,21 +1,21 @@
 {
-  "top_decile_lift": 1.538,
+  "top_decile_lift": 2.177,
   "median_lead_time_months": 0.0,
-  "mean_lead_time_months": 1.48,
+  "mean_lead_time_months": 1.55,
   "lead_time_by_segment": {
     "logistics": 0.0,
+    "services": 0.0,
+    "food_processing": 0.0,
     "auto_components": 0.0,
-    "services": 2.0,
-    "food_processing": 1.0,
-    "textile": 0.0,
-    "retail_trading": 0.0
+    "retail_trading": 0.0,
+    "textile": 0.0
   },
-  "oot_defaulters_count": 65,
+  "oot_defaulters_count": 611,
   "oot_eval_months": [
     25,
     36
   ],
   "top_decile_cutoff": 0.0063,
-  "base_default_rate_oot": 0.00314,
-  "top_decile_default_rate_oot": 0.00484
+  "base_default_rate_oot": 0.00294,
+  "top_decile_default_rate_oot": 0.0064
 }

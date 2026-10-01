@@ -1,7 +1,7 @@
 {
-  "avg_data_confidence": 70.23,
-  "flagged_firms_count": 1976,
-  "clean_firms_count": 24,
-  "clean_firms_share": 0.012,
+  "avg_data_confidence": 70.5,
+  "flagged_firms_count": 19727,
+  "clean_firms_count": 273,
+  "clean_firms_share": 0.0137,
   "attacks_tested": 3
 }
