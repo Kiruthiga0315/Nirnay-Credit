@@ -1,15 +1,15 @@
 {
-  "approval_rate": 0.618,
-  "override_share": 0.084,
-  "n_approved_below_cutoff": 52,
-  "n_rejected_above_cutoff": 116,
-  "cutoff": 0.365243506314247,
-  "female_approval_rate": 0.6165644171779141,
-  "male_approval_rate": 0.6230769230769231,
-  "rural_approval_rate": 0.6103500761035008,
-  "metro_approval_rate": 0.630057803468208,
-  "urban_approval_rate": 0.6129032258064516,
-  "observed_default_rate": 0.08818770226537216,
-  "n_approved": 1236,
-  "n_rejected": 764
+  "approval_rate": 0.6263,
+  "override_share": 0.0737,
+  "n_approved_below_cutoff": 500,
+  "n_rejected_above_cutoff": 974,
+  "cutoff": 0.35611870597955353,
+  "female_approval_rate": 0.6141393138274172,
+  "male_approval_rate": 0.6292286874154263,
+  "rural_approval_rate": 0.6202137132680321,
+  "metro_approval_rate": 0.6361315512839766,
+  "urban_approval_rate": 0.6225957897925185,
+  "observed_default_rate": 0.08622066102506785,
+  "n_approved": 12526,
+  "n_rejected": 7474
 }
