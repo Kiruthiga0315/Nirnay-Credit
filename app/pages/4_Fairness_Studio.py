@@ -14,6 +14,7 @@ from app.components import ui
 from core import paths
 
 ui.page_header("Fairness Studio", "metrics, frontier, proxy audit", "Regulator / Risk Head")
+ui.caption("All metrics in this studio are evaluated under documented assumptions as an underwriting decision aid.")
 
 rep = ui.safe_call(core.fairness_report, None)
 if rep:
@@ -22,9 +23,10 @@ if rep:
     rural_air = rep["adverse_impact_ratio"].get("rural", 0.0)
     
     st.info(
-        f"**Summary:** Under our documented assumptions, the approval rate for women-led businesses is "
-        f"{women_air:.2f}x the rate of other businesses. For rural businesses, it is {rural_air:.2f}x. "
-        f"These metrics are measured and mitigated under stated definitions, with 'Non-default' acting as the positive outcome."
+        f"**Summary (Decision Aid):** Under our documented assumptions, the approval rate for women-led businesses is "
+        f"{women_air:.2f}x the rate of other businesses (Adverse Impact Ratio). For rural businesses, it is {rural_air:.2f}x. "
+        f"These metrics are measured and mitigated under stated definitions, with 'Non-default' acting as the positive outcome. "
+        f"This cockpit functions as a decision aid to quantify trade-offs, not an automated judgment."
     )
     
     # 2. Group metrics table
@@ -38,7 +40,7 @@ if rep:
         "tpr": "{:.1%}",
         "ece": "{:.4f}"
     }), use_container_width=True)
-    ui.caption("Approval rate, true-positive rate (TPR), and expected calibration error (ECE) by group.")
+    ui.caption("Approval rate, true-positive rate (TPR: fraction of non-defaulters approved), and expected calibration error (ECE) by group as an underwriting decision aid under documented assumptions.")
     
     col1, col2 = st.columns(2)
     
@@ -53,7 +55,7 @@ if rep:
         fig_air.add_hline(y=0.8, line_dash="dash", line_color="red", annotation_text="0.8 Threshold")
         fig_air.update_traces(texttemplate='%{text:.2f}', textposition='outside')
         st.plotly_chart(fig_air, use_container_width=True)
-        ui.caption("Adverse Impact Ratio: Approval rate of the group divided by the approval rate of its reference group.")
+        ui.caption("Adverse Impact Ratio (AIR): Group approval rate divided by reference group approval rate (decision aid threshold: 0.80).")
 
     # 4. TPR Gap Bar Chart
     with col2:
@@ -66,7 +68,7 @@ if rep:
         fig_tpr.add_hline(y=0, line_color="black")
         fig_tpr.update_traces(texttemplate='%{text:.3f}', textposition='outside')
         st.plotly_chart(fig_tpr, use_container_width=True)
-        ui.caption("TPR Gap: True Positive Rate of the group minus the TPR of its reference group.")
+        ui.caption("Equal Opportunity (TPR Gap): Group TPR minus reference group TPR, measuring parity in identifying non-defaulters as an underwriting decision aid.")
         
     st.divider()
     
@@ -94,12 +96,12 @@ if rep:
         ))
         fig_int.update_layout(title_text="Approval Rates with 95% CIs for Intersectional Groups", yaxis_title="Approval Rate")
         st.plotly_chart(fig_int, use_container_width=True)
-        ui.caption("Measured under stated definitions. Small N warning flagged when n < 200.")
+        ui.caption("Intersectional approval rates measured under stated definitions with 95% bootstrap confidence intervals (decision aid). Small N warning flagged when n < 200.")
 
 
 st.divider()
-st.subheader("Cost of Fairness (Frontier)")
-st.warning("Simulation only: Group-aware thresholds and parameters are illustrative regulator-mandated policy simulations, and are never used as the default decision path.")
+st.subheader("Cost of Fairness Frontier (Decision Aid)")
+st.warning("Simulation only (Decision Aid): Group-aware thresholds and parameters are illustrative regulator-mandated policy simulations, and are never used as the default decision path.")
 frontier = paths.load_json("frontier.json")
 if frontier:
     f_df = pd.DataFrame(frontier)
@@ -117,10 +119,10 @@ if frontier:
             air = sel_row.iloc[0]['air_women_led']
             st.metric("Simulated Expected Profit", ui.inr(profit))
             st.metric("Simulated AIR (Women-led)", f"{air:.4f}")
-    ui.caption("Cost of Fairness: Increasing fairness mitigation may reduce expected profit.")
+    ui.caption("Cost of Fairness Frontier: Illustrative trade-off showing how policy constraints affect expected portfolio profit under documented assumptions (decision aid).")
 
 st.divider()
-st.subheader("Proxy Audit")
+st.subheader("Proxy Audit (Decision Aid)")
 proxy_audit = paths.load_json("proxy_audit.json")
 if proxy_audit:
     st.write(f"**Target**: `{proxy_audit.get('target', 'N/A')}`")
@@ -130,10 +132,10 @@ if proxy_audit:
     proxies = proxy_audit.get("top_proxies", [])
     if proxies:
         st.dataframe(pd.DataFrame(proxies), use_container_width=True)
-    ui.caption("Top features acting as proxies for protected attributes (under documented assumptions).")
+    ui.caption("Proxy Audit: Identifies statistical correlations between unconstrained features and protected attributes (decision aid under documented assumptions; not a regulatory compliance claim).")
 
 st.divider()
-st.subheader("Recourse Equity Gap")
+st.subheader("Recourse Equity Gap (Decision Aid)")
 fairness_groups = paths.load_json("fairness_groups.json")
 if fairness_groups and "recourse_equity" in fairness_groups:
     req = fairness_groups["recourse_equity"]
@@ -141,4 +143,5 @@ if fairness_groups and "recourse_equity" in fairness_groups:
         st.write(f"#### {eq_key.replace('_', ' ').title()}")
         group_df = pd.DataFrame(eq_data["by_group"]).T
         st.dataframe(group_df)
-        st.caption(eq_data.get("_note", ""))
+        note_str = eq_data.get("_note", "")
+        st.caption(f"{note_str} Recourse equity evaluates median cost-to-approve disparity across groups as an underwriting decision aid.")

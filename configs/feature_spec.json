@@ -74,7 +74,7 @@
       "mutability": "verifiable",
       "monotone_pd": -1,
       "label": "GST filing regularity",
-      "reason_risk": "GST returns were filed on time only {value:.0%} of the last 12 months — inconsistent compliance signals weak financial discipline.",
+      "reason_risk": "GST returns were filed on time only {value:.0%} of the last 12 months — filing delays signal weak financial discipline.",
       "model_input": true,
       "nullable": false,
       "advice": "File GST returns on time every month to demonstrate consistent financial discipline.",

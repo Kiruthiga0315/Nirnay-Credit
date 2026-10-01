@@ -377,7 +377,7 @@ def recourse_equity(group: str = "owner_gender", max_per_group: int = 30) -> dic
     return {
         "group_column": group,
         "by_group": by_group,
-        "_note": "Under documented assumptions: synthetic data, illustrative cost parameters.",
+        "_note": "Under documented assumptions: decision aid, illustrative cost parameters on synthetic data.",
     }
 
 
