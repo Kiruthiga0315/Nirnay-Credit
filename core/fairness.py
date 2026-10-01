@@ -507,6 +507,7 @@ def _recourse_equity_gap() -> dict[str, Any]:
     return {
         "gender_equity": gender_eq,
         "location_equity": location_eq,
+        "_note": "Under documented assumptions: decision aid measuring median cost-to-approve disparity across groups.",
     }
 
 

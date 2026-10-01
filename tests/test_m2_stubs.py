@@ -67,7 +67,7 @@ def test_recourse_new_pd_less_than_pd(bid):
 
 
 def test_recourse_meena_below_approval_threshold():
-    """Meena's new_pd must be below the approval PD threshold (route-to-yes guarantee)."""
+    """Meena's new_pd must be below the approval PD threshold (route-to-yes verification)."""
     r = core.recourse(MEENA_ID)
     assert r["new_pd"] < APPROVAL_PD_THRESHOLD, (
         f"Meena new_pd={r['new_pd']} >= APPROVAL_PD_THRESHOLD={APPROVAL_PD_THRESHOLD}"

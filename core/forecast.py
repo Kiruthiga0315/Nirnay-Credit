@@ -168,7 +168,7 @@ def forecast(
     p10 = np.maximum(p10_raw - conf_delta, 0.0)
     p90 = p90_raw + conf_delta
 
-    # Guarantee monotone bands: p10 <= p50 <= p90
+    # Enforce monotone bands: p10 <= p50 <= p90
     p10 = np.minimum(p10, p50)
     p90 = np.maximum(p90, p50)
 
