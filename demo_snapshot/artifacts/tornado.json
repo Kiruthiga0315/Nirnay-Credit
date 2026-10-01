@@ -2,119 +2,119 @@
   "demonetisation_style": [
     {
       "assumption": "correlation_rho",
-      "low": 245937154.1,
-      "high": 386723306.92,
-      "base": 324408981.9
+      "low": 2318988339.06,
+      "high": 3689242397.16,
+      "base": 3082034057.53
     },
     {
       "assumption": "receivable_days_delta",
-      "low": 309482770.69,
-      "high": 325354153.88,
-      "base": 324408981.9
+      "low": 2957407759.11,
+      "high": 3089020518.42,
+      "base": 3082034057.53
     },
     {
       "assumption": "revenue_change",
-      "low": 327901790.75,
-      "high": 320804248.33,
-      "base": 324408981.9
+      "low": 3103036853.32,
+      "high": 3050633580.04,
+      "base": 3082034057.53
     }
   ],
   "gst_rollout_style": [
     {
       "assumption": "correlation_rho",
-      "low": 241089077.76,
-      "high": 379759675.17,
-      "base": 318389543.83
+      "low": 2260099798.88,
+      "high": 3603934187.48,
+      "base": 3008583108.04
     },
     {
       "assumption": "gstr1_3b_mismatch_delta",
-      "low": 308288170.94,
-      "high": 318550899.98,
-      "base": 318389543.83
-    },
-    {
-      "assumption": "revenue_change",
-      "low": 321172763.88,
-      "high": 317046688.54,
-      "base": 318389543.83
+      "low": 2918676611.24,
+      "high": 3013641541.01,
+      "base": 3008583108.04
     },
     {
       "assumption": "gst_filing_delay_days_delta",
-      "low": 317000654.0,
-      "high": 319033538.38,
-      "base": 318389543.83
+      "low": 2989258161.67,
+      "high": 3041504221.95,
+      "base": 3008583108.04
+    },
+    {
+      "assumption": "revenue_change",
+      "low": 3021594940.62,
+      "high": 3003789244.5,
+      "base": 3008583108.04
     }
   ],
   "covid_style": [
     {
       "assumption": "correlation_rho",
-      "low": 268757746.18,
-      "high": 419636481.12,
-      "base": 352812671.48
+      "low": 2480226267.11,
+      "high": 3922213504.55,
+      "base": 3282870175.25
     },
     {
       "assumption": "receivable_days_delta",
-      "low": 327605373.62,
-      "high": 354010555.68,
-      "base": 352812671.48
+      "low": 3085753364.46,
+      "high": 3293609213.29,
+      "base": 3282870175.25
     },
     {
       "assumption": "revenue_change",
-      "low": 361916918.66,
-      "high": 343470686.35,
-      "base": 352812671.48
+      "low": 3329990406.16,
+      "high": 3222354724.48,
+      "base": 3282870175.25
     }
   ],
   "rate_hike_2022_23_style": [
     {
       "assumption": "correlation_rho",
-      "low": 222536351.74,
-      "high": 352686053.68,
-      "base": 295122690.17
+      "low": 2125242218.89,
+      "high": 3405001704.12,
+      "base": 2838521516.19
     },
     {
       "assumption": "revenue_change",
-      "low": 296413192.19,
-      "high": 295006455.14,
-      "base": 295122690.17
+      "low": 2850492309.41,
+      "high": 2837875000.73,
+      "base": 2838521516.19
     },
     {
       "assumption": "cost_of_debt_bps_delta",
-      "low": 295122690.17,
-      "high": 295122690.17,
-      "base": 295122690.17
+      "low": 2838521516.19,
+      "high": 2838521516.19,
+      "base": 2838521516.19
     }
   ],
   "custom": [
     {
       "assumption": "correlation_rho",
-      "low": 269400271.68,
-      "high": 420548528.99,
-      "base": 353605178.14
+      "low": 2512210051.02,
+      "high": 3970388593.73,
+      "base": 3323696634.31
     },
     {
       "assumption": "receivable_days_delta",
-      "low": 308106492.18,
-      "high": 355197499.26,
-      "base": 353605178.14
+      "low": 2973756755.32,
+      "high": 3343072600.5,
+      "base": 3323696634.31
     },
     {
       "assumption": "revenue_change",
-      "low": 360322458.13,
-      "high": 344747548.42,
-      "base": 353605178.14
+      "low": 3371308929.67,
+      "high": 3256099388.26,
+      "base": 3323696634.31
     },
     {
       "assumption": "gst_filing_delay_days_delta",
-      "low": 349891365.91,
-      "high": 354466169.5,
-      "base": 353605178.14
+      "low": 3271797222.93,
+      "high": 3357594963.53,
+      "base": 3323696634.31
     },
     {
       "assumption": "cost_of_debt_bps_delta",
-      "low": 353605178.14,
-      "high": 353605178.14,
-      "base": 353605178.14
+      "low": 3323696634.31,
+      "high": 3323696634.31,
+      "base": 3323696634.31
     }
   ]
 }

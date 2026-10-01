@@ -1,116 +1,116 @@
 {
   "scenario": "gst_rollout_style",
-  "expected_loss": 152068353.41,
-  "es95": 325923897.39,
-  "base_el": 131718668.09,
-  "el_no_contagion": 143646545.5,
-  "es95_no_contagion": 310818989.67,
+  "expected_loss": 1402613622.8,
+  "es95": 3083173980.56,
+  "base_el": 1215775865.55,
+  "el_no_contagion": 1323871028.6,
+  "es95_no_contagion": 2938249099.91,
   "segment_losses": {
-    "textile": 29483639.8,
-    "auto_components": 22364662.86,
-    "logistics": 24528301.82,
-    "food_processing": 30935589.36,
-    "services": 22449001.5,
-    "retail_trading": 22307158.08
+    "textile": 247801170.75,
+    "services": 216604848.14,
+    "auto_components": 243175583.5,
+    "logistics": 216632853.01,
+    "retail_trading": 236571279.18,
+    "food_processing": 241827888.21
   },
-  "first_failing_segment": "food_processing",
+  "first_failing_segment": "textile",
   "tornado": [
     {
       "assumption": "correlation_rho",
-      "low": 241089077.76,
-      "high": 379759675.17,
-      "base": 318389543.83
+      "low": 2260099798.88,
+      "high": 3603934187.48,
+      "base": 3008583108.04
     },
     {
       "assumption": "gstr1_3b_mismatch_delta",
-      "low": 308288170.94,
-      "high": 318550899.98,
-      "base": 318389543.83
-    },
-    {
-      "assumption": "revenue_change",
-      "low": 321172763.88,
-      "high": 317046688.54,
-      "base": 318389543.83
+      "low": 2918676611.24,
+      "high": 3013641541.01,
+      "base": 3008583108.04
     },
     {
       "assumption": "gst_filing_delay_days_delta",
-      "low": 317000654.0,
-      "high": 319033538.38,
-      "base": 318389543.83
+      "low": 2989258161.67,
+      "high": 3041504221.95,
+      "base": 3008583108.04
+    },
+    {
+      "assumption": "revenue_change",
+      "low": 3021594940.62,
+      "high": 3003789244.5,
+      "base": 3008583108.04
     }
   ],
   "bands": {
-    "p5": 34306194.23,
-    "p50": 127632533.02,
-    "p95": 325923897.39
+    "p5": 295023800.74,
+    "p50": 1157567099.38,
+    "p95": 3083173980.56
   },
   "mitigation": {
-    "restructured_count": 200,
-    "loss_before_inr": 29891890.7,
-    "loss_after_inr": 18648195.39,
-    "loss_saved_inr": 11243695.31
+    "restructured_count": 2000,
+    "loss_before_inr": 318216278.44,
+    "loss_after_inr": 211952846.79,
+    "loss_saved_inr": 106263431.65
   },
   "heatmap": [
     {
       "sector": "auto_components",
       "size": "micro",
-      "loss": 302619.3
+      "loss": 3322418.67
     },
     {
       "sector": "auto_components",
       "size": "small",
-      "loss": 22062043.56
+      "loss": 239853164.82
     },
     {
       "sector": "food_processing",
       "size": "micro",
-      "loss": 557077.03
+      "loss": 4091297.13
     },
     {
       "sector": "food_processing",
       "size": "small",
-      "loss": 30378512.34
+      "loss": 237736591.09
     },
     {
       "sector": "logistics",
       "size": "micro",
-      "loss": 520877.28
+      "loss": 3461001.3
     },
     {
       "sector": "logistics",
       "size": "small",
-      "loss": 24007424.54
+      "loss": 213171851.71
     },
     {
       "sector": "retail_trading",
       "size": "micro",
-      "loss": 287764.87
+      "loss": 4074715.63
     },
     {
       "sector": "retail_trading",
       "size": "small",
-      "loss": 22019393.21
+      "loss": 232496563.55
     },
     {
       "sector": "services",
       "size": "micro",
-      "loss": 370144.99
+      "loss": 3646510.56
     },
     {
       "sector": "services",
       "size": "small",
-      "loss": 22078856.51
+      "loss": 212958337.58
     },
     {
       "sector": "textile",
       "size": "micro",
-      "loss": 414075.89
+      "loss": 4149040.73
     },
     {
       "sector": "textile",
       "size": "small",
-      "loss": 29069563.91
+      "loss": 243652130.02
     }
   ]
 }

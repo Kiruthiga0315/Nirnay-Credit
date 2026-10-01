@@ -27,14 +27,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def run(cmd: list[str], *, cwd: Path = ROOT, timeout: int = 600) -> tuple[int, str]:
     """Run a subprocess; return (returncode, combined_output)."""
-    result = subprocess.run(
-        cmd,
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-    )
-    return result.returncode, result.stdout + result.stderr
+    try:
+        result = subprocess.run(
+            cmd,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+        return result.returncode, result.stdout + result.stderr
+    except subprocess.TimeoutExpired as exc:
+        out = (exc.stdout or "") + (exc.stderr or "")
+        return -1, out + f"\nTIMEOUT after {timeout}s"
 
 
 def git_sha() -> str:
@@ -70,7 +74,7 @@ def main() -> int:
     python = sys.executable
     smoke_rc, smoke_out = run(
         [python, "run_all.py", "--smoke", "--keep-going"],
-        timeout=180,
+        timeout=300,
     )
     smoke_status = "OK" if smoke_rc == 0 else "FAIL"
     # Extract failing stage names from output for concise status

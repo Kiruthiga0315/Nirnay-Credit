@@ -8,11 +8,39 @@
       "women_led_share": 0.4
     },
     {
+      "inclusion_floor": 0.1,
+      "expected_profit": 14808.34,
+      "cost_of_inclusion": 0.0,
+      "approved_count": 5,
+      "women_led_share": 0.4
+    },
+    {
+      "inclusion_floor": 0.2,
+      "expected_profit": 14808.34,
+      "cost_of_inclusion": 0.0,
+      "approved_count": 5,
+      "women_led_share": 0.4
+    },
+    {
       "inclusion_floor": 0.3,
       "expected_profit": 14808.34,
       "cost_of_inclusion": 0.0,
       "approved_count": 5,
       "women_led_share": 0.4
+    },
+    {
+      "inclusion_floor": 0.4,
+      "expected_profit": 14808.34,
+      "cost_of_inclusion": 0.0,
+      "approved_count": 5,
+      "women_led_share": 0.4
+    },
+    {
+      "inclusion_floor": 0.5,
+      "expected_profit": 10857.72,
+      "cost_of_inclusion": 3950.620000000001,
+      "approved_count": 4,
+      "women_led_share": 0.5
     }
   ]
 }
