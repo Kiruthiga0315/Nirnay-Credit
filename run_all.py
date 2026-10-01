@@ -11,6 +11,9 @@ Adding a stage = one line in STAGES (M3 only).
 """
 from __future__ import annotations
 
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+
 import argparse
 import importlib
 import json
